@@ -1,0 +1,22 @@
+[
+  {
+    "record_id": "cyc-a",
+    "timestamp": "2026-04-17T10:00:00Z",
+    "context": "Node A in a two-node cycle. Both timestamps are equal so G4 alone cannot detect the cycle.",
+    "decision": "A.",
+    "options": ["a"],
+    "status": "complete",
+    "parent_record_ids": ["cyc-b"],
+    "child_record_ids": ["cyc-b"]
+  },
+  {
+    "record_id": "cyc-b",
+    "timestamp": "2026-04-17T10:00:00Z",
+    "context": "Node B in a two-node cycle. Bidirectional links are consistent, but the graph is cyclic.",
+    "decision": "B.",
+    "options": ["b"],
+    "status": "complete",
+    "parent_record_ids": ["cyc-a"],
+    "child_record_ids": ["cyc-a"]
+  }
+]

@@ -12,7 +12,7 @@ behavior without spec/schema/tests updates will be asked to expand.
 - [ ] No change to `docs/SPEC.md`.
 - [ ] Editorial change to `docs/SPEC.md` (no behavioral change).
 - [ ] **Normative** change to `docs/SPEC.md`. Affected section(s):
-      <!-- e.g. §4.2, §7 G3 -->
+      <!-- e.g. S4.2, S7 G3 -->
 
 If this is a normative change, describe:
 - What invariant or field is added/removed/changed.
@@ -32,8 +32,8 @@ If this is a normative change, describe:
 
 ## Breaking change?
 
-- [ ] No — strictly additive or editorial.
-- [ ] Yes — explain below why it is necessary and how consumers migrate.
+- [ ] No - strictly additive or editorial.
+- [ ] Yes - explain below why it is necessary and how consumers migrate.
 
 ## Checklist
 

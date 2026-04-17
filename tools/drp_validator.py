@@ -5,10 +5,7 @@ Validates a single DRP record or a batch of records in three layers:
 schema, semantic, and graph. See docs/VALIDATION.md for the full
 contract and docs/SPEC.md for the normative rules.
 
-This module is intentionally dependency-light. If the third-party
-`jsonschema` package is installed, it is used for the schema layer;
-otherwise a built-in shape check is used that covers the same required
-and type constraints.
+This module requires only the Python standard library.
 """
 
 from __future__ import annotations
@@ -20,7 +17,7 @@ import re
 import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Iterable
+from typing import Any, Iterable, Iterator
 
 
 SCHEMA_PATH = os.path.join(
@@ -503,6 +500,59 @@ def _graph_validate(records: list[dict]) -> list[ValidationError]:
                             "timestamp",
                         )
                     )
+
+    # G6: acyclicity. Always run regardless of prior errors; the cycle
+    # detector only traverses edges that resolve within by_id, so
+    # unresolved references do not cause false positives here.
+    errs.extend(_detect_cycles(by_id))
+
+    return errs
+
+
+def _detect_cycles(by_id: dict[str, dict]) -> list[ValidationError]:
+    """
+    Detect directed cycles in the parent->child graph using iterative DFS.
+
+    G4 (timestamp ordering) is sufficient to rule out cycles when all
+    timestamps are strictly ordered, but it does not catch cycles where
+    two or more nodes share the same timestamp. This function explicitly
+    enforces G6 regardless of timestamp values.
+    """
+    errs: list[ValidationError] = []
+    WHITE, GRAY, BLACK = 0, 1, 2
+    color: dict[str, int] = {rid: WHITE for rid in by_id}
+
+    def successors(rid: str) -> list[str]:
+        kids = by_id[rid].get("child_record_ids") or []
+        return [c for c in kids if isinstance(c, str) and c in by_id]
+
+    for start in list(by_id.keys()):
+        if color[start] != WHITE:
+            continue
+        color[start] = GRAY
+        stack: list[tuple[str, Iterator[str]]] = [
+            (start, iter(successors(start)))
+        ]
+        while stack:
+            node, it = stack[-1]
+            try:
+                child = next(it)
+                if color[child] == GRAY:
+                    errs.append(
+                        ValidationError(
+                            "graph",
+                            node,
+                            "child_record_ids",
+                            f"cycle detected: '{node}' -> '{child}' "
+                            f"creates a cycle in the parent/child graph",
+                        )
+                    )
+                elif color[child] == WHITE:
+                    color[child] = GRAY
+                    stack.append((child, iter(successors(child))))
+            except StopIteration:
+                color[node] = BLACK
+                stack.pop()
 
     return errs
 

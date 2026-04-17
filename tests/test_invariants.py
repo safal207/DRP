@@ -5,8 +5,12 @@ the smallest possible input that isolates it.
 """
 
 import copy
+import os
 
-from drp_validator import validate
+from drp_validator import validate, validate_file
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FIXTURES = os.path.join(ROOT, "fixtures")
 
 
 def _base() -> dict:
@@ -240,3 +244,106 @@ def test_inv_supersedes_timestamp_ordering():
     result = validate([old, new])
     assert not result.ok
     assert any("earlier than superseded" in e.message for e in result.errors)
+
+
+# ---- §7 G6 acyclicity ---------------------------------------------------- #
+
+def test_inv_two_node_cycle_with_equal_timestamps_rejected():
+    """The critical case: G4 (timestamp ordering) cannot catch a cycle where
+    both nodes share the same timestamp. G6 must catch it via DFS."""
+    result = validate_file(
+        os.path.join(FIXTURES, "invalid", "cyclic_graph.json")
+    )
+    assert not result.ok
+    assert any("cycle detected" in e.message for e in result.errors)
+
+
+def test_inv_two_node_cycle_inline():
+    """Same two-node cycle constructed inline, independent of fixtures."""
+    ts = "2026-04-17T10:00:00Z"
+    a = {
+        "record_id": "a",
+        "timestamp": ts,
+        "context": "ctx",
+        "decision": "dec",
+        "options": ["x"],
+        "status": "complete",
+        "parent_record_ids": ["b"],
+        "child_record_ids": ["b"],
+    }
+    b = {
+        "record_id": "b",
+        "timestamp": ts,
+        "context": "ctx",
+        "decision": "dec",
+        "options": ["x"],
+        "status": "complete",
+        "parent_record_ids": ["a"],
+        "child_record_ids": ["a"],
+    }
+    result = validate([a, b])
+    assert not result.ok
+    assert any("cycle detected" in e.message for e in result.errors)
+
+
+def test_inv_three_node_cycle_rejected():
+    """A longer cycle: A->B->C->A. All timestamps are equal so G4 (parent <=
+    child) is satisfied by every edge, meaning only G6 catches the cycle."""
+    t1 = "2026-04-01T10:00:00Z"
+    t2 = "2026-04-01T10:00:00Z"  # equal, so G4 allows C->A
+    t3 = "2026-04-01T10:00:00Z"
+    a = {
+        "record_id": "ca",
+        "timestamp": t1,
+        "context": "c", "decision": "d", "options": ["x"],
+        "status": "complete",
+        "parent_record_ids": ["cc"],
+        "child_record_ids": ["cb"],
+    }
+    b = {
+        "record_id": "cb",
+        "timestamp": t2,
+        "context": "c", "decision": "d", "options": ["x"],
+        "status": "complete",
+        "parent_record_ids": ["ca"],
+        "child_record_ids": ["cc"],
+    }
+    c = {
+        "record_id": "cc",
+        "timestamp": t3,
+        "context": "c", "decision": "d", "options": ["x"],
+        "status": "complete",
+        "parent_record_ids": ["cb"],
+        "child_record_ids": ["ca"],
+    }
+    result = validate([a, b, c])
+    assert not result.ok
+    assert any("cycle detected" in e.message for e in result.errors)
+
+
+def test_inv_acyclic_graph_passes():
+    """Linear chain A->B->C is acyclic and should pass."""
+    a = {
+        "record_id": "la",
+        "timestamp": "2026-04-01T10:00:00Z",
+        "context": "c", "decision": "d", "options": ["x"],
+        "status": "complete",
+        "child_record_ids": ["lb"],
+    }
+    b = {
+        "record_id": "lb",
+        "timestamp": "2026-04-02T10:00:00Z",
+        "context": "c", "decision": "d", "options": ["x"],
+        "status": "complete",
+        "parent_record_ids": ["la"],
+        "child_record_ids": ["lc"],
+    }
+    c = {
+        "record_id": "lc",
+        "timestamp": "2026-04-03T10:00:00Z",
+        "context": "c", "decision": "d", "options": ["x"],
+        "status": "complete",
+        "parent_record_ids": ["lb"],
+    }
+    result = validate([a, b, c])
+    assert result.ok, [e.format() for e in result.errors]

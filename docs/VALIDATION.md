@@ -53,6 +53,9 @@ Cross-record checks that require the full batch:
   (§7 G3);
 - for every parent edge, parent timestamp ≤ child timestamp (§7 G4);
 - no record appears in its own parent/child list (§7 G5);
+- the parent/child graph is acyclic (§7 G6); this check runs after all
+  reference resolution is confirmed, using iterative DFS — it catches
+  cycles that G4 misses when two or more nodes share the same timestamp;
 - `supersedes_record_id`, if present, resolves to a record in the batch
   (§8 S2);
 - the superseding record's timestamp is ≥ the superseded record's
