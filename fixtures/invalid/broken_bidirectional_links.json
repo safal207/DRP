@@ -1,0 +1,19 @@
+[
+  {
+    "record_id": "bi-a",
+    "timestamp": "2026-04-01T10:00:00Z",
+    "context": "Parent that fails to list its child.",
+    "decision": "A.",
+    "options": ["A"],
+    "status": "complete"
+  },
+  {
+    "record_id": "bi-b",
+    "timestamp": "2026-04-05T10:00:00Z",
+    "context": "Child that lists bi-a as parent, but bi-a does not list bi-b as a child.",
+    "decision": "B.",
+    "options": ["B"],
+    "status": "complete",
+    "parent_record_ids": ["bi-a"]
+  }
+]

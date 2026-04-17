@@ -1,0 +1,43 @@
+[
+  {
+    "record_id": "g-1",
+    "timestamp": "2026-04-01T10:00:00Z",
+    "context": "Root decision in the graph.",
+    "decision": "Do A.",
+    "options": ["Do A", "Do nothing"],
+    "status": "complete",
+    "impact": 1,
+    "child_record_ids": ["g-2", "g-3"]
+  },
+  {
+    "record_id": "g-2",
+    "timestamp": "2026-04-05T10:00:00Z",
+    "context": "Follow-on decision derived from g-1.",
+    "decision": "Do B as a consequence of A.",
+    "options": ["Do B", "Do nothing"],
+    "status": "complete",
+    "impact": 0,
+    "parent_record_ids": ["g-1"],
+    "child_record_ids": ["g-4"]
+  },
+  {
+    "record_id": "g-3",
+    "timestamp": "2026-04-06T10:00:00Z",
+    "context": "Second follow-on decision derived from g-1.",
+    "decision": "Do C as a consequence of A.",
+    "options": ["Do C", "Do nothing"],
+    "status": "complete",
+    "impact": 1,
+    "parent_record_ids": ["g-1"]
+  },
+  {
+    "record_id": "g-4",
+    "timestamp": "2026-04-10T10:00:00Z",
+    "context": "Terminal decision with multiple motivating parents is possible; this one has a single parent.",
+    "decision": "Do D as a consequence of B.",
+    "options": ["Do D", "Do nothing"],
+    "status": "complete",
+    "impact": 1,
+    "parent_record_ids": ["g-2"]
+  }
+]

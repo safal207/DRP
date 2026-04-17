@@ -1,0 +1,12 @@
+{
+  "record_id": "dec-0001",
+  "timestamp": "2026-04-17T10:00:00Z",
+  "context": "We need a consistent format for recording decisions across the team.",
+  "decision": "Adopt DRP 0.1 as the internal decision record format.",
+  "options": [
+    "Adopt DRP 0.1",
+    "Continue with free-form decision notes",
+    "Adopt a heavier ADR template"
+  ],
+  "status": "complete"
+}

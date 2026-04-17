@@ -1,0 +1,8 @@
+{
+  "record_id": "bad-ts-1",
+  "timestamp": "2026/04/17 10:00:00",
+  "context": "Timestamp is not ISO 8601 UTC.",
+  "decision": "X.",
+  "options": ["X"],
+  "status": "complete"
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "record_id": "dec-s1",
+    "timestamp": "2026-03-01T09:00:00Z",
+    "context": "We need an internal format for decision records.",
+    "decision": "Use a proprietary YAML schema.",
+    "options": ["Proprietary YAML", "Use an existing standard"],
+    "status": "complete",
+    "impact": 0
+  },
+  {
+    "record_id": "dec-s2",
+    "timestamp": "2026-04-17T10:00:00Z",
+    "context": "The proprietary YAML format from dec-s1 is unreviewed and has no validator. We should replace it with a format that ships a spec and a validator.",
+    "decision": "Adopt DRP 0.1 in place of the proprietary YAML format.",
+    "options": ["Adopt DRP 0.1", "Keep the proprietary YAML"],
+    "rationale": "DRP has a public spec, a schema, and a reference validator. The decision dec-s1 is replaced by this record.",
+    "status": "superseded",
+    "supersedes_record_id": "dec-s1",
+    "impact": 1
+  }
+]

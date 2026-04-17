@@ -1,0 +1,8 @@
+{
+  "record_id": "empty-dec-1",
+  "timestamp": "2026-04-17T10:00:00Z",
+  "context": "Decision is empty after trimming.",
+  "decision": "",
+  "options": ["X"],
+  "status": "complete"
+}

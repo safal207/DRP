@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/safal207/DRP/schema/drp.schema.json",
+  "title": "DRP Record",
+  "description": "Schema for a single DRP (Decision Record Protocol) record. A batch is a JSON array whose items match this schema. Graph-level invariants (uniqueness, reference resolution, bidirectional consistency, timestamp ordering) are enforced by the reference validator, not by this schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_id",
+    "timestamp",
+    "context",
+    "decision",
+    "options",
+    "status"
+  ],
+  "properties": {
+    "record_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable identifier, unique within a batch."
+    },
+    "timestamp": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ISO 8601 UTC timestamp. Trailing 'Z' or explicit '+00:00' offset."
+    },
+    "context": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Why the decision is being made."
+    },
+    "decision": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What was decided."
+    },
+    "options": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Options that were considered. Non-empty."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "proposed", "complete", "superseded", "rejected"]
+    },
+    "rationale": {
+      "type": "string"
+    },
+    "impact": {
+      "description": "Exactly one of -1, 0, 1, null. Booleans are rejected.",
+      "type": ["integer", "null"],
+      "enum": [-1, 0, 1, null]
+    },
+    "parent_record_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "child_record_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "supersedes_record_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "superseded" } },
+        "required": ["status"]
+      },
+      "then": {
+        "required": ["supersedes_record_id"]
+      }
+    }
+  ]
+}

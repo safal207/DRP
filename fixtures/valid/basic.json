@@ -1,0 +1,9 @@
+{
+  "record_id": "basic-001",
+  "timestamp": "2026-04-17T12:00:00Z",
+  "context": "Baseline positive fixture.",
+  "decision": "Adopt DRP.",
+  "options": ["Adopt", "Do not adopt"],
+  "status": "complete",
+  "impact": 0
+}

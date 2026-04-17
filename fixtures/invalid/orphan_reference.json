@@ -1,0 +1,11 @@
+[
+  {
+    "record_id": "orph-1",
+    "timestamp": "2026-04-17T10:00:00Z",
+    "context": "Record points to a parent that does not exist in the batch.",
+    "decision": "X.",
+    "options": ["X", "Y"],
+    "status": "complete",
+    "parent_record_ids": ["does-not-exist"]
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "record_id": "dec-0002",
+  "timestamp": "2026-04-17T11:30:00Z",
+  "context": "Our decision records lack machine-checkable structure, so they cannot be audited or diffed.",
+  "decision": "Standardize on DRP records validated in CI before publication.",
+  "options": [
+    "Standardize on DRP with CI validation",
+    "Standardize on DRP without enforcement",
+    "Keep free-form Markdown notes"
+  ],
+  "rationale": "DRP gives us auditability, stable identifiers, and explicit causal links while remaining format-only. Enforcing validation in CI prevents drift.",
+  "impact": 1,
+  "status": "complete",
+  "tags": ["process", "documentation", "governance"],
+  "metadata": {
+    "author": "safal207",
+    "review_round": 2
+  }
+}

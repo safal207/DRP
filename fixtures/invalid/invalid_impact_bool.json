@@ -1,0 +1,9 @@
+{
+  "record_id": "imp-bool-1",
+  "timestamp": "2026-04-17T10:00:00Z",
+  "context": "Impact must not be a boolean.",
+  "decision": "X.",
+  "options": ["X"],
+  "status": "complete",
+  "impact": true
+}

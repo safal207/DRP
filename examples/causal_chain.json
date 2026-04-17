@@ -1,0 +1,34 @@
+[
+  {
+    "record_id": "dec-a1",
+    "timestamp": "2026-04-01T09:00:00Z",
+    "context": "No formal decision log exists for the platform team.",
+    "decision": "Introduce a lightweight decision log.",
+    "options": ["Introduce a log", "Keep ad-hoc notes"],
+    "status": "complete",
+    "impact": 1,
+    "child_record_ids": ["dec-a2"]
+  },
+  {
+    "record_id": "dec-a2",
+    "timestamp": "2026-04-10T14:00:00Z",
+    "context": "The log introduced in dec-a1 is free-form and cannot be validated.",
+    "decision": "Adopt DRP as the format for all decision log entries.",
+    "options": ["Adopt DRP", "Keep free-form Markdown"],
+    "rationale": "DRP adds structure and a validator without changing our storage.",
+    "status": "complete",
+    "impact": 1,
+    "parent_record_ids": ["dec-a1"],
+    "child_record_ids": ["dec-a3"]
+  },
+  {
+    "record_id": "dec-a3",
+    "timestamp": "2026-04-15T10:00:00Z",
+    "context": "DRP records are not yet validated on commit, so drift is possible.",
+    "decision": "Wire drp-validate into the CI pipeline.",
+    "options": ["Enforce in CI", "Enforce only on release"],
+    "status": "complete",
+    "impact": 1,
+    "parent_record_ids": ["dec-a2"]
+  }
+]
