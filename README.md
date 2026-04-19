@@ -1,4 +1,4 @@
-# DRP — Decision Record Protocol
+# Decision Record Protocol (DRP)
 
 DRP is a lightweight, machine-readable protocol for recording decisions as
 immutable, linkable records. A DRP record captures *what* was decided,
