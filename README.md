@@ -68,6 +68,18 @@ python3 tools/drp_validator.py examples/minimal_valid.json
 ./scripts/drp-validate examples/minimal_valid.json
 ```
 
+For CI jobs and tool integrations, use `--json` for a machine-readable
+result on stdout:
+
+```sh
+./scripts/drp-validate examples/minimal_valid.json --json
+# {"status": "OK", "record_count": 1, "errors": []}
+```
+
+Exit code is `0` on success, `1` on validation failure, `2` on unreadable
+input. See [docs/VALIDATION.md](docs/VALIDATION.md) for the full CLI
+contract.
+
 Run the test suite:
 
 ```sh

@@ -58,6 +58,15 @@ REQUIRED_FIELDS = (
 
 
 # --------------------------------------------------------------------------- #
+# CLI exit codes
+# --------------------------------------------------------------------------- #
+# Stable across releases. See docs/VALIDATION.md for the contract.
+EXIT_OK = 0
+EXIT_INVALID = 1
+EXIT_USAGE = 2
+
+
+# --------------------------------------------------------------------------- #
 # Error model
 # --------------------------------------------------------------------------- #
 
@@ -72,6 +81,14 @@ class ValidationError:
         ident = self.record_id if self.record_id else "<unknown>"
         loc = f" [{self.field}]" if self.field else ""
         return f"[{self.layer}] {ident}{loc}: {self.message}"
+
+    def to_dict(self) -> dict:
+        return {
+            "layer": self.layer,
+            "record_id": self.record_id,
+            "field": self.field,
+            "message": self.message,
+        }
 
 
 @dataclass
@@ -627,31 +644,62 @@ def _main(argv: list[str] | None = None) -> int:
         description="Validate a DRP record or batch.",
     )
     parser.add_argument("path", help="Path to a JSON file (record or batch).")
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit machine-readable JSON output instead of plain text.",
+    )
     args = parser.parse_args(argv)
 
     try:
         with open(args.path, "r", encoding="utf-8") as f:
             data = json.load(f)
     except FileNotFoundError:
-        print(f"drp-validate: file not found: {args.path}", file=sys.stderr)
-        return 2
+        msg = f"file not found: {args.path}"
+        if args.json:
+            print(json.dumps({"status": "ERROR", "message": msg}))
+        else:
+            print(f"drp-validate: {msg}", file=sys.stderr)
+        return EXIT_USAGE
     except json.JSONDecodeError as e:
-        print(f"drp-validate: invalid JSON: {e}", file=sys.stderr)
-        return 2
+        msg = f"invalid JSON: {e}"
+        if args.json:
+            print(json.dumps({"status": "ERROR", "message": msg}))
+        else:
+            print(f"drp-validate: {msg}", file=sys.stderr)
+        return EXIT_USAGE
     except OSError as e:
-        print(f"drp-validate: cannot read {args.path}: {e}", file=sys.stderr)
-        return 2
+        msg = f"cannot read {args.path}: {e}"
+        if args.json:
+            print(json.dumps({"status": "ERROR", "message": msg}))
+        else:
+            print(f"drp-validate: {msg}", file=sys.stderr)
+        return EXIT_USAGE
 
     result = validate(data)
 
     if result.ok:
-        print(f"OK: {result.record_count} record(s) validated")
-        return 0
+        if args.json:
+            print(json.dumps({
+                "status": "OK",
+                "record_count": result.record_count,
+                "errors": [],
+            }))
+        else:
+            print(f"OK: {result.record_count} record(s) validated")
+        return EXIT_OK
 
-    for err in result.errors:
-        print(err.format())
-    print(f"FAIL: {len(result.errors)} error(s)")
-    return 1
+    if args.json:
+        print(json.dumps({
+            "status": "FAIL",
+            "record_count": result.record_count,
+            "errors": [e.to_dict() for e in result.errors],
+        }))
+    else:
+        for err in result.errors:
+            print(err.format())
+        print(f"FAIL: {len(result.errors)} error(s)")
+    return EXIT_INVALID
 
 
 if __name__ == "__main__":

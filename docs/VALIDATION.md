@@ -93,18 +93,22 @@ The reference CLI is `scripts/drp-validate`.
 ### Usage
 
 ```sh
-drp-validate <path-to-json>
+drp-validate <path-to-json> [--json]
 ```
 
 ### Exit codes
 
-| Code | Meaning |
-|------|---------|
-| `0`  | Input is valid under all three layers. |
-| `1`  | Validation failed. One or more errors were printed. |
-| `2`  | Input could not be read or parsed as JSON, or usage is wrong. |
+Exit codes are exposed as constants in `tools/drp_validator.py`
+(`EXIT_OK`, `EXIT_INVALID`, `EXIT_USAGE`). They are stable across
+releases.
 
-### Output
+| Constant       | Code | Meaning |
+|----------------|------|---------|
+| `EXIT_OK`      | `0`  | Input is valid under all three layers. |
+| `EXIT_INVALID` | `1`  | Validation failed. One or more errors were printed. |
+| `EXIT_USAGE`   | `2`  | Input could not be read or parsed as JSON, or usage is wrong. |
+
+### Plain-text output (default)
 
 On success, the CLI prints a single line:
 
@@ -123,6 +127,40 @@ FAIL: <K> error(s)
 
 No other output is written to stdout. Diagnostic messages (if any) go
 to stderr.
+
+### JSON output (`--json`)
+
+For CI jobs, editors, and other tools, pass `--json` to receive a
+single JSON document on stdout.
+
+On success:
+
+```json
+{"status": "OK", "record_count": 1, "errors": []}
+```
+
+On validation failure:
+
+```json
+{
+  "status": "FAIL",
+  "record_count": 2,
+  "errors": [
+    {"layer": "graph", "record_id": "dup-1", "field": "record_id",
+     "message": "duplicate record_id 'dup-1' within batch"}
+  ]
+}
+```
+
+On I/O or parse errors:
+
+```json
+{"status": "ERROR", "message": "file not found: path/to/file.json"}
+```
+
+The `errors` array preserves the order in which errors were discovered
+(see §5). The exit code is unchanged by `--json`: `0` / `1` / `2` have
+the same meaning as in plain-text mode.
 
 ## 5. Determinism
 
