@@ -27,7 +27,7 @@ researcher -- needs to reconstruct exactly:
 
 1. what evidence existed at the time of the decision;
 2. what options were considered;
-3. what was decided, by whom, and when;
+3. what was decided and when (reviewer identity is outside DRP's scope -- see section 6);
 4. whether that decision is still in effect, and if not, what replaced
    it.
 

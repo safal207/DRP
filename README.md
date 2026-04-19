@@ -44,7 +44,12 @@ queried, or diffed. DRP fixes this by:
 |   +-- SPEC.md                - formal specification
 |   +-- VALIDATION.md          - validator rules and CLI contract
 |   +-- DESIGN.md              - rationale behind design choices
-|   \-- FAQ.md                 - common questions
+|   +-- FAQ.md                 - common questions
+|   +-- USE_CASE_SAFETY_EVAL.md      - go/no-go decisions around safety evaluations
+|   +-- USE_CASE_INCIDENT_ROLLBACK.md - incident response and rollback chain
+|   +-- USE_CASE_POLICY_SUPERSESSION.md - policy evolution and governance change
+|   +-- BENCHMARKS.md          - auditability benchmark pack overview
+|   \-- RESEARCH_NOTE.md       - research framing and evaluation seed
 +-- schema/
 |   \-- drp.schema.json        - JSON Schema (Draft 2020-12)
 +-- examples/                  - illustrative, valid records
