@@ -1,0 +1,67 @@
+[
+  {
+    "record_id": "deploy-2026-04-01-capability-y",
+    "timestamp": "2026-04-01T10:00:00Z",
+    "context": "Planned deploy of capability-y v2 to general availability following successful eval and review.",
+    "decision": "Deploy capability-y v2 to general availability with standard monitoring.",
+    "options": [
+      "Deploy to general availability",
+      "Deploy to a staged cohort",
+      "Do not deploy"
+    ],
+    "rationale": "Safety eval passed with no open regressions; staged rollout was considered unnecessary given the low-risk change surface.",
+    "status": "complete",
+    "impact": 1,
+    "child_record_ids": ["deploy-2026-04-14-rollback"],
+    "tags": ["deploy", "capability-y"]
+  },
+  {
+    "record_id": "incident-2026-04-14-report",
+    "timestamp": "2026-04-14T09:05:00Z",
+    "context": "External report plus internal monitoring show that capability-y v2 is producing responses in a restricted advice domain that v1 correctly declined. Reproducible; affects roughly 0.3 percent of matched queries.",
+    "decision": "Classify as a P1 safety incident; escalate to the on-call reviewer and begin the rollback decision process.",
+    "options": [
+      "Classify as P1",
+      "Classify as P2",
+      "Continue monitoring without classification"
+    ],
+    "rationale": "Reproducibility, category of affected queries, and volume cross the P1 threshold in the incident policy.",
+    "status": "complete",
+    "impact": -1,
+    "child_record_ids": ["deploy-2026-04-14-rollback"],
+    "tags": ["incident", "capability-y"]
+  },
+  {
+    "record_id": "deploy-2026-04-14-rollback",
+    "timestamp": "2026-04-14T10:20:00Z",
+    "context": "Emergency decision under the P1 incident classified in incident-2026-04-14-report. Options evaluated under a one-hour time budget.",
+    "decision": "Roll back capability-y to v1 globally; disable v2 behind the feature flag.",
+    "options": [
+      "Global rollback to v1",
+      "Narrow v2 audience to internal only",
+      "Keep v2 and add a guard rule"
+    ],
+    "rationale": "Rollback was the only option that fully removes the observed regression within the incident time budget. A narrower audience still exposes enterprise users; a guard rule was not feasible to implement and test in the available window.",
+    "status": "superseded",
+    "supersedes_record_id": "deploy-2026-04-01-capability-y",
+    "impact": -1,
+    "parent_record_ids": ["deploy-2026-04-01-capability-y", "incident-2026-04-14-report"],
+    "tags": ["rollback", "capability-y", "incident"]
+  },
+  {
+    "record_id": "deploy-2026-04-16-patched",
+    "timestamp": "2026-04-16T15:00:00Z",
+    "context": "Post-incident review completed. The regression from incident-2026-04-14-report has been reproduced in the eval harness, a targeted fix has been implemented and tested, and a follow-up eval has been signed off.",
+    "decision": "Redeploy capability-y v2.1 (patched) to general availability; close the feature flag on v2; retain the rollback as the fallback posture until v2.1 has 72 hours of clean monitoring.",
+    "options": [
+      "Redeploy patched v2.1",
+      "Retain rollback indefinitely",
+      "Replace capability-y with an alternative design"
+    ],
+    "rationale": "The fix is narrowly scoped, covered by a new regression test, and verified against the follow-up eval. Retaining the rollback indefinitely is not justified given the verified fix.",
+    "status": "superseded",
+    "supersedes_record_id": "deploy-2026-04-14-rollback",
+    "impact": 1,
+    "tags": ["deploy", "capability-y", "post-incident"]
+  }
+]

@@ -1,0 +1,57 @@
+[
+  {
+    "record_id": "eval-2026-04-10-capability-x",
+    "timestamp": "2026-04-10T16:00:00Z",
+    "context": "Scheduled safety evaluation of capability-x v3 prior to the planned 2026-04-14 deploy window. Ran the internal safety eval suite (refusal calibration, misuse probes, tool-use boundary checks) and the standing regression suite.",
+    "decision": "Record eval summary: capability-x v3 passes 41 of 43 safety checks; 2 open regressions in tool-use boundary category remain unresolved.",
+    "options": [
+      "Report pass with no caveats",
+      "Report pass with open regressions listed",
+      "Report fail"
+    ],
+    "rationale": "Two open regressions are reproducible but limited to a narrow pattern documented in the linked evidence. Reviewers need the full picture.",
+    "status": "complete",
+    "impact": 0,
+    "child_record_ids": ["deploy-decision-2026-04-13"],
+    "tags": ["safety-eval", "capability-x"],
+    "metadata": {
+      "eval_suite_version": "internal-safety-v7",
+      "open_regressions": ["tool-use-boundary/regression-A", "tool-use-boundary/regression-B"]
+    }
+  },
+  {
+    "record_id": "deploy-decision-2026-04-13",
+    "timestamp": "2026-04-13T18:30:00Z",
+    "context": "Review committee meeting on capability-x v3 deploy request, using the eval summary from eval-2026-04-10-capability-x as primary evidence.",
+    "decision": "Restricted deploy: capability-x v3 is enabled only for internal users and for the designated enterprise cohort until the two open regressions are closed.",
+    "options": [
+      "Full deploy",
+      "Restricted deploy to internal and enterprise cohort",
+      "Do not deploy"
+    ],
+    "rationale": "The open regressions are low severity but reproducible. A restricted deploy gathers real-world signal while limiting blast radius.",
+    "status": "complete",
+    "impact": 1,
+    "parent_record_ids": ["eval-2026-04-10-capability-x"],
+    "tags": ["go-no-go", "capability-x"]
+  },
+  {
+    "record_id": "deploy-decision-2026-05-02",
+    "timestamp": "2026-05-02T14:00:00Z",
+    "context": "Follow-up review after the two open regressions from eval-2026-04-10-capability-x were closed and re-tested. New eval summary is cited in metadata.",
+    "decision": "Expand capability-x v3 from restricted deploy to general availability.",
+    "options": [
+      "Expand to general availability",
+      "Keep restricted deploy",
+      "Roll back"
+    ],
+    "rationale": "Regressions closed and re-verified; restricted-deploy cohort showed no safety regressions across the 19-day window.",
+    "status": "superseded",
+    "supersedes_record_id": "deploy-decision-2026-04-13",
+    "impact": 1,
+    "tags": ["go-no-go", "capability-x"],
+    "metadata": {
+      "followup_eval": "eval-2026-05-01-capability-x"
+    }
+  }
+]

@@ -1,0 +1,46 @@
+[
+  {
+    "record_id": "policy-tooluse-v1",
+    "timestamp": "2026-01-15T09:00:00Z",
+    "context": "Initial tool-use policy for the agent platform.",
+    "decision": "Adopt tool-use policy v1: allow-list plus per-request authorization for unlisted services.",
+    "options": [
+      "Allow-list with per-request authorization",
+      "Deny-list with open default",
+      "Block all external tool use"
+    ],
+    "status": "complete",
+    "impact": 1,
+    "tags": ["policy", "tool-use"]
+  },
+  {
+    "record_id": "policy-tooluse-v2a",
+    "timestamp": "2026-03-04T11:00:00Z",
+    "context": "Governance working group proposes a tightening revision of the tool-use policy.",
+    "decision": "Adopt tool-use policy v2a: retain the allow-list and add an explicit clause for shell-like tools.",
+    "options": [
+      "Adopt v2a",
+      "Defer"
+    ],
+    "rationale": "Closes an audit finding on shell-like tools.",
+    "status": "superseded",
+    "supersedes_record_id": "policy-tooluse-v1",
+    "impact": 1,
+    "tags": ["policy", "tool-use", "governance"]
+  },
+  {
+    "record_id": "policy-tooluse-v2b",
+    "timestamp": "2026-03-05T14:00:00Z",
+    "context": "Platform safety working group also publishes a revision of the tool-use policy, unaware of policy-tooluse-v2a. Both records structurally declare themselves as the successor to policy-tooluse-v1.",
+    "decision": "Adopt tool-use policy v2b: retain the allow-list and tighten the per-request authorization workflow.",
+    "options": [
+      "Adopt v2b",
+      "Defer"
+    ],
+    "rationale": "Addresses a separate finding on per-request authorization latency.",
+    "status": "superseded",
+    "supersedes_record_id": "policy-tooluse-v1",
+    "impact": 1,
+    "tags": ["policy", "tool-use", "governance"]
+  }
+]

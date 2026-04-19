@@ -1,0 +1,32 @@
+[
+  {
+    "record_id": "eval-2026-04-10-capability-x",
+    "timestamp": "2026-04-10T16:00:00Z",
+    "context": "Safety evaluation summary for capability-x v3. This record was intended to motivate deploy-decision-2026-04-13 and should list it as a child, but the child edge was not written back when the decision record was added.",
+    "decision": "Record eval summary: capability-x v3 passes safety eval with open regressions listed.",
+    "options": [
+      "Report pass",
+      "Report pass with caveats",
+      "Report fail"
+    ],
+    "status": "complete",
+    "impact": 0,
+    "tags": ["safety-eval", "capability-x"]
+  },
+  {
+    "record_id": "deploy-decision-2026-04-13",
+    "timestamp": "2026-04-13T18:30:00Z",
+    "context": "Review committee decision citing eval-2026-04-10-capability-x as its motivating evidence. The child-side of the edge is missing on the eval record, which would let a traversal from the eval miss this decision.",
+    "decision": "Restricted deploy: capability-x v3 is enabled only for internal users and the enterprise cohort.",
+    "options": [
+      "Full deploy",
+      "Restricted deploy",
+      "Do not deploy"
+    ],
+    "rationale": "Restricted deploy limits blast radius while the open regressions are closed.",
+    "status": "complete",
+    "impact": 1,
+    "parent_record_ids": ["eval-2026-04-10-capability-x"],
+    "tags": ["go-no-go", "capability-x"]
+  }
+]

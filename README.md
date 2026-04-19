@@ -51,10 +51,13 @@ queried, or diffed. DRP fixes this by:
 +-- fixtures/
 |   +-- valid/                 - regression fixtures that must validate
 |   \-- invalid/               - regression fixtures that must fail
++-- benchmark/
+|   \-- drp_auditability_pack/ - scenario-grounded benchmark pack
 +-- tools/
 |   \-- drp_validator.py       - reference validator implementation
 +-- scripts/
-|   \-- drp-validate           - CLI wrapper around the validator
+|   +-- drp-validate           - CLI wrapper around the validator
+|   \-- run_benchmark.py       - runs the auditability pack
 \-- tests/                     - automated tests for schema + validator
 ```
 
@@ -95,6 +98,31 @@ python3 -m pytest tests/
 - [JSON Schema](schema/drp.schema.json) - machine-readable shape.
 - [Examples](examples/) - idiomatic records.
 - [Fixtures](fixtures/) - positive and negative validator fixtures.
+
+## Use cases
+
+Realistic scenarios showing where DRP is intended to be applied:
+
+- [Safety evaluation / go-no-go](docs/USE_CASE_SAFETY_EVAL.md) -
+  recording deploy / no-deploy / restricted-deploy decisions around a
+  safety eval, including later supersession.
+- [Incident response / rollback](docs/USE_CASE_INCIDENT_ROLLBACK.md) -
+  recording emergency mitigations and subsequent corrective actions as
+  a traceable chain.
+- [Policy supersession / governance change](docs/USE_CASE_POLICY_SUPERSESSION.md) -
+  representing policy evolution so that the currently effective policy
+  is always recoverable.
+
+## Benchmarks and research framing
+
+- [Auditability benchmark pack](benchmark/drp_auditability_pack/) -
+  compact valid / invalid / ambiguous / comparison fixtures grounded in
+  the use cases above.
+- [Benchmarks overview](docs/BENCHMARKS.md) - what the pack is, what it
+  checks, and what it explicitly does not claim.
+- [Research note](docs/RESEARCH_NOTE.md) - problem framing, hypotheses,
+  a minimal evaluation outline, and the limits of the current
+  repository.
 
 ## Conformance
 

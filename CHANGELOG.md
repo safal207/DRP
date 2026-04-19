@@ -11,6 +11,30 @@ the record format, the schema, or the set of enforced invariants is a
 
 ## [Unreleased]
 
+### Added
+- Use case documents grounding DRP in realistic safety and governance
+  workflows: `docs/USE_CASE_SAFETY_EVAL.md`,
+  `docs/USE_CASE_INCIDENT_ROLLBACK.md`,
+  `docs/USE_CASE_POLICY_SUPERSESSION.md`.
+- Auditability benchmark pack (`benchmark/drp_auditability_pack/`) with
+  `valid/`, `invalid/`, `ambiguous/`, and `comparison/` categories.
+  Fixtures are scenario-grounded (safety eval, incident rollback,
+  policy supersession).
+- Benchmarks documentation (`docs/BENCHMARKS.md`) explaining what the
+  pack covers, what each category means, and what it does not claim.
+- Research note (`docs/RESEARCH_NOTE.md`) stating the problem framing,
+  hypotheses, a minimal evaluation outline, and explicit limits of the
+  v0.1.0 repository.
+- Helper `scripts/run_benchmark.py` that walks the pack, invokes the
+  reference validator, and prints a per-category pass/fail summary.
+  Wraps the existing validator API; no protocol change.
+- README links to the new use cases, benchmark pack, benchmarks doc,
+  and research note.
+
+### Changed
+- None. No protocol, schema, or validator behavior changes in this
+  entry.
+
 ## [0.1.0] — 2026-04-17
 
 First public release of the DRP protocol repository.

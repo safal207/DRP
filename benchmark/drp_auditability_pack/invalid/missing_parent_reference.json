@@ -1,0 +1,18 @@
+[
+  {
+    "record_id": "deploy-decision-2026-04-13",
+    "timestamp": "2026-04-13T18:30:00Z",
+    "context": "Review committee meeting on capability-x v3 deploy request, citing a prior eval summary as evidence.",
+    "decision": "Restricted deploy: capability-x v3 is enabled only for internal users and the designated enterprise cohort until the two open regressions are closed.",
+    "options": [
+      "Full deploy",
+      "Restricted deploy to internal and enterprise cohort",
+      "Do not deploy"
+    ],
+    "rationale": "Open regressions are low severity but reproducible; restricted deploy limits blast radius while gathering signal.",
+    "status": "complete",
+    "impact": 1,
+    "parent_record_ids": ["eval-2026-04-10-capability-x"],
+    "tags": ["go-no-go", "capability-x"]
+  }
+]

@@ -1,0 +1,29 @@
+[
+  {
+    "record_id": "eval-2026-04-10-capability-x",
+    "timestamp": "2026-04-10T16:00:00Z",
+    "context": "Eval was run.",
+    "decision": "Eval looks fine.",
+    "options": [
+      "Pass",
+      "Fail"
+    ],
+    "status": "complete",
+    "child_record_ids": ["deploy-decision-2026-04-13"],
+    "tags": ["safety-eval"]
+  },
+  {
+    "record_id": "deploy-decision-2026-04-13",
+    "timestamp": "2026-04-13T18:30:00Z",
+    "context": "Standard review.",
+    "decision": "Ship it.",
+    "options": [
+      "Ship",
+      "Do not ship"
+    ],
+    "rationale": "Reviewers were comfortable.",
+    "status": "complete",
+    "parent_record_ids": ["eval-2026-04-10-capability-x"],
+    "tags": ["go-no-go"]
+  }
+]
