@@ -1,0 +1,20 @@
+[
+  {
+    "record_id": "ts-parent",
+    "timestamp": "2026-05-01T10:00:00Z",
+    "context": "Parent record whose timestamp is later than its child's.",
+    "decision": "Parent.",
+    "options": ["Parent"],
+    "status": "complete",
+    "child_record_ids": ["ts-child"]
+  },
+  {
+    "record_id": "ts-child",
+    "timestamp": "2026-04-01T10:00:00Z",
+    "context": "Child whose timestamp precedes its parent's.",
+    "decision": "Child.",
+    "options": ["Child"],
+    "status": "complete",
+    "parent_record_ids": ["ts-parent"]
+  }
+]

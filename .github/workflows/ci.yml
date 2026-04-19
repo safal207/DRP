@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "claude/**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    name: Test (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install test dependencies
+        run: pip install pytest
+
+      - name: Run test suite
+        run: python3 -m pytest tests/ -v
+
+      - name: Smoke-test CLI on valid examples
+        run: |
+          python3 tools/drp_validator.py examples/minimal_valid.json
+          python3 tools/drp_validator.py examples/causal_chain.json
+          python3 tools/drp_validator.py examples/superseded_chain.json
+
+      - name: Smoke-test CLI on invalid fixture (must fail)
+        run: |
+          python3 tools/drp_validator.py fixtures/invalid/duplicate_id.json && exit 1 || true

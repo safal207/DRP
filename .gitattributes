@@ -1,0 +1,10 @@
+# Enforce LF line endings and UTF-8 across the repo.
+# This prevents heuristic warnings on diffs and keeps fixtures and
+# spec files byte-identical across platforms.
+* text=auto eol=lf
+
+# JSON fixtures and schema: strict LF, UTF-8, no BOM.
+*.json text eol=lf working-tree-encoding=UTF-8
+*.md   text eol=lf working-tree-encoding=UTF-8
+*.py   text eol=lf working-tree-encoding=UTF-8
+*.yml  text eol=lf working-tree-encoding=UTF-8

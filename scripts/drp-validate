@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+"""CLI wrapper around tools/drp_validator.py."""
+
+import os
+import sys
+
+# Ensure tools/ is importable regardless of invocation location.
+_here = os.path.dirname(os.path.abspath(__file__))
+_root = os.path.dirname(_here)
+sys.path.insert(0, os.path.join(_root, "tools"))
+
+from drp_validator import _main  # noqa: E402
+
+if __name__ == "__main__":
+    sys.exit(_main())

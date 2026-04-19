@@ -1,0 +1,8 @@
+{
+  "record_id": "sup-broken-1",
+  "timestamp": "2026-04-17T10:00:00Z",
+  "context": "Status is superseded but supersedes_record_id is absent.",
+  "decision": "X.",
+  "options": ["X"],
+  "status": "superseded"
+}
