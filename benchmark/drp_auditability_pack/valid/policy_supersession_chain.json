@@ -1,0 +1,49 @@
+[
+  {
+    "record_id": "policy-tooluse-v1",
+    "timestamp": "2026-01-15T09:00:00Z",
+    "context": "Initial tool-use policy for the agent platform. Defines which external services the agent is authorized to call and the default behavior when no policy applies.",
+    "decision": "Adopt tool-use policy v1: the agent may call the approved service list; any unlisted service requires an explicit per-request authorization record.",
+    "options": [
+      "Allow-list of approved services plus per-request authorization for others",
+      "Deny-list of forbidden services with open default",
+      "Block all external tool use"
+    ],
+    "rationale": "An allow-list gives a clear, auditable default and avoids the need to enumerate all possible misuse categories up front.",
+    "status": "complete",
+    "impact": 1,
+    "tags": ["policy", "tool-use"]
+  },
+  {
+    "record_id": "policy-tooluse-v2",
+    "timestamp": "2026-03-04T11:00:00Z",
+    "context": "Review following an external audit finding that policy-tooluse-v1 did not explicitly address outbound network access from shell-like tools. The audit recommended an explicit statement and a review cadence.",
+    "decision": "Adopt tool-use policy v2: retain the allow-list from v1 and add an explicit clause requiring outbound network access from shell-like tools to be logged and reviewed on a quarterly cadence.",
+    "options": [
+      "Adopt v2 with the explicit clause and quarterly review",
+      "Adopt v2 with the explicit clause but no review cadence",
+      "Reject the audit recommendation"
+    ],
+    "rationale": "The explicit clause closes the audit finding. The quarterly review cadence is lightweight and creates a durable checkpoint.",
+    "status": "superseded",
+    "supersedes_record_id": "policy-tooluse-v1",
+    "impact": 1,
+    "tags": ["policy", "tool-use", "audit-driven"]
+  },
+  {
+    "record_id": "policy-tooluse-v3",
+    "timestamp": "2026-04-05T10:00:00Z",
+    "context": "Targeted revision following the quarterly review introduced in policy-tooluse-v2. Review identified that two services on the allow-list had been deprecated upstream.",
+    "decision": "Adopt tool-use policy v3: remove the two deprecated services from the allow-list; retain all other clauses from v2 unchanged.",
+    "options": [
+      "Remove deprecated services only",
+      "Remove deprecated services and tighten the allow-list further",
+      "Defer until the next full review"
+    ],
+    "rationale": "Deprecated services cannot be reached and leaving them on the allow-list creates stale references. A broader tightening was considered but deferred to the next scheduled review.",
+    "status": "superseded",
+    "supersedes_record_id": "policy-tooluse-v2",
+    "impact": 0,
+    "tags": ["policy", "tool-use", "scheduled-review"]
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "record_id": "deploy-decision-2026-04-13",
+    "timestamp": "2026-04-13T18:30:00Z",
+    "context": "Decision record that mistakenly lists itself as its own parent. This produces a degenerate one-node cycle; the record also cannot coherently be caused by itself.",
+    "decision": "Restricted deploy of capability-x v3 to internal users.",
+    "options": [
+      "Full deploy",
+      "Restricted deploy",
+      "Do not deploy"
+    ],
+    "status": "complete",
+    "impact": 1,
+    "parent_record_ids": ["deploy-decision-2026-04-13"],
+    "tags": ["go-no-go"]
+  }
+]

@@ -1,0 +1,28 @@
+[
+  {
+    "record_id": "policy-incident-response-vA",
+    "timestamp": "2026-04-14T10:00:00Z",
+    "context": "Incident response policy, version A. Mistakenly claims that policy vB motivated it and lists vB as its child, producing a cycle.",
+    "decision": "Adopt incident response policy vA.",
+    "options": [
+      "Adopt vA",
+      "Defer"
+    ],
+    "status": "complete",
+    "parent_record_ids": ["policy-incident-response-vB"],
+    "child_record_ids": ["policy-incident-response-vB"]
+  },
+  {
+    "record_id": "policy-incident-response-vB",
+    "timestamp": "2026-04-14T10:00:00Z",
+    "context": "Incident response policy, version B. Bidirectional links with vA are internally consistent, but the graph is cyclic. Timestamps are equal, so G4 alone does not catch this; G6 must.",
+    "decision": "Adopt incident response policy vB.",
+    "options": [
+      "Adopt vB",
+      "Defer"
+    ],
+    "status": "complete",
+    "parent_record_ids": ["policy-incident-response-vA"],
+    "child_record_ids": ["policy-incident-response-vA"]
+  }
+]

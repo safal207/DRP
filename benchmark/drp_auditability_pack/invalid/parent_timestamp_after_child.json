@@ -1,0 +1,32 @@
+[
+  {
+    "record_id": "eval-2026-05-02-capability-x",
+    "timestamp": "2026-05-02T16:00:00Z",
+    "context": "Eval summary whose timestamp is later than the decision it supposedly motivated. This is audit-hostile: a parent cannot have informed a decision that predates it.",
+    "decision": "Eval pass with open regressions listed.",
+    "options": [
+      "Pass",
+      "Pass with caveats",
+      "Fail"
+    ],
+    "status": "complete",
+    "child_record_ids": ["deploy-decision-2026-04-13"],
+    "tags": ["safety-eval"]
+  },
+  {
+    "record_id": "deploy-decision-2026-04-13",
+    "timestamp": "2026-04-13T18:30:00Z",
+    "context": "Deploy decision naming the eval above as its motivating evidence. The eval's timestamp is after this decision, which is impossible if the eval actually informed it.",
+    "decision": "Restricted deploy of capability-x v3 to internal users.",
+    "options": [
+      "Full deploy",
+      "Restricted deploy",
+      "Do not deploy"
+    ],
+    "rationale": "Restricted deploy limits blast radius while the open regressions are closed.",
+    "status": "complete",
+    "impact": 1,
+    "parent_record_ids": ["eval-2026-05-02-capability-x"],
+    "tags": ["go-no-go"]
+  }
+]

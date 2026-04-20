@@ -38,3 +38,6 @@ jobs:
       - name: Smoke-test CLI on invalid fixture (must fail)
         run: |
           python3 tools/drp_validator.py fixtures/invalid/duplicate_id.json && exit 1 || true
+
+      - name: Run auditability benchmark pack
+        run: python3 scripts/run_benchmark.py

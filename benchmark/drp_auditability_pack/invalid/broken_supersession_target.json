@@ -1,0 +1,18 @@
+[
+  {
+    "record_id": "deploy-2026-04-16-patched",
+    "timestamp": "2026-04-16T15:00:00Z",
+    "context": "Post-incident corrective decision that references an earlier rollback record. The rollback record is not present in this batch, which means the supersession target cannot be resolved and the chain is broken.",
+    "decision": "Redeploy capability-y v2.1 (patched) to general availability; retain the rollback as the fallback posture until monitoring confirms v2.1 is stable.",
+    "options": [
+      "Redeploy patched v2.1",
+      "Retain rollback indefinitely",
+      "Replace capability-y with an alternative design"
+    ],
+    "rationale": "The fix is narrowly scoped and covered by a regression test.",
+    "status": "superseded",
+    "supersedes_record_id": "deploy-2026-04-14-rollback",
+    "impact": 1,
+    "tags": ["deploy", "capability-y", "post-incident"]
+  }
+]

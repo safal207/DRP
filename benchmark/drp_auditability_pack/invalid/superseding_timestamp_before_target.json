@@ -1,0 +1,29 @@
+[
+  {
+    "record_id": "policy-tooluse-v1",
+    "timestamp": "2026-04-14T10:00:00Z",
+    "context": "Original tool-use policy v1.",
+    "decision": "Adopt tool-use policy v1.",
+    "options": [
+      "Adopt v1",
+      "Defer"
+    ],
+    "status": "complete",
+    "tags": ["policy", "tool-use"]
+  },
+  {
+    "record_id": "policy-tooluse-v2",
+    "timestamp": "2026-04-13T10:00:00Z",
+    "context": "Revision record whose timestamp is earlier than the record it claims to supersede. A superseding decision cannot, by definition, predate the one it replaces.",
+    "decision": "Revised tool-use policy, v2.",
+    "options": [
+      "Revise",
+      "Retire",
+      "Keep v1"
+    ],
+    "rationale": "Incident-driven revision narrowing allowed tool-use patterns.",
+    "status": "superseded",
+    "supersedes_record_id": "policy-tooluse-v1",
+    "tags": ["policy", "tool-use"]
+  }
+]

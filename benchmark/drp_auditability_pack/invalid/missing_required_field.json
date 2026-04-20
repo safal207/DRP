@@ -1,0 +1,11 @@
+[
+  {
+    "record_id": "deploy-decision-2026-04-13",
+    "timestamp": "2026-04-13T18:30:00Z",
+    "context": "Decision record that is missing the required 'options' field. Without options, the record does not document what alternatives were considered and cannot be audited against DRP's record model.",
+    "decision": "Restricted deploy of capability-x v3 to internal users.",
+    "status": "complete",
+    "impact": 1,
+    "tags": ["go-no-go"]
+  }
+]

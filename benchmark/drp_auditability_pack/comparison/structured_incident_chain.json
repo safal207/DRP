@@ -1,0 +1,49 @@
+[
+  {
+    "record_id": "deploy-2026-04-01-capability-y",
+    "timestamp": "2026-04-01T10:00:00Z",
+    "context": "Capability-y v2 is going to general availability after a passing eval and standard review.",
+    "decision": "Deploy capability-y v2 to general availability with standard monitoring.",
+    "options": [
+      "Deploy to general availability",
+      "Deploy to a staged cohort",
+      "Do not deploy"
+    ],
+    "rationale": "Eval passed with no open regressions; staged rollout was considered unnecessary.",
+    "status": "complete",
+    "impact": 1,
+    "tags": ["deploy", "capability-y"]
+  },
+  {
+    "record_id": "deploy-2026-04-14-rollback",
+    "timestamp": "2026-04-14T10:20:00Z",
+    "context": "External report plus internal monitoring: capability-y v2 producing responses in a restricted advice domain. Reproducible on about 0.3 percent of matched queries. Classified P1 and handled inside a one-hour incident window.",
+    "decision": "Roll back capability-y to v1 globally; disable v2 behind the feature flag.",
+    "options": [
+      "Global rollback to v1",
+      "Narrow v2 audience to internal only",
+      "Keep v2 and add a guard rule"
+    ],
+    "rationale": "Rollback was the only option that fully removed the observed regression inside the incident window. A narrower audience still exposed enterprise users; a guard rule was not feasible to ship and test in the available time.",
+    "status": "superseded",
+    "supersedes_record_id": "deploy-2026-04-01-capability-y",
+    "impact": -1,
+    "tags": ["rollback", "capability-y", "incident"]
+  },
+  {
+    "record_id": "deploy-2026-04-16-patched",
+    "timestamp": "2026-04-16T15:00:00Z",
+    "context": "Post-incident review completed; the restricted-advice regression was root-caused to a guardrail rule loading the wrong category for v2. A narrowly scoped fix is covered by a new regression test and a follow-up eval has been signed off.",
+    "decision": "Redeploy capability-y v2.1 (patched) to general availability; retain the rollback as the documented fallback until v2.1 has 72 hours of clean monitoring.",
+    "options": [
+      "Redeploy patched v2.1",
+      "Retain rollback indefinitely",
+      "Replace capability-y with an alternative design"
+    ],
+    "rationale": "The fix is narrowly scoped, covered by a regression test, and verified against the follow-up eval. Retaining the rollback indefinitely is not justified given the verified fix.",
+    "status": "superseded",
+    "supersedes_record_id": "deploy-2026-04-14-rollback",
+    "impact": 1,
+    "tags": ["deploy", "capability-y", "post-incident"]
+  }
+]
