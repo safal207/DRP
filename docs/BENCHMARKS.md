@@ -59,15 +59,42 @@ catches. Each fixture isolates a single class of defect.
 Included:
 
 - `missing_parent_reference.json` -- a decision cites an eval record as
-  parent but the eval record is absent from the batch. Catches G1.
-- `cyclic_chain.json` -- two policy records with equal timestamps and
-  mutual parent/child edges form a cycle. Catches G6; G4 alone cannot.
-- `broken_supersession_target.json` -- a corrective decision names a
-  superseded record that is not in the batch. Catches S2.
+  parent but the eval record is absent from the batch. Catches G1
+  (unresolved parent reference).
+- `broken_child_reference.json` -- an eval record lists a downstream
+  decision as a child, but that decision is absent from the batch.
+  Catches G2 (unresolved child reference).
 - `broken_bidirectional_links.json` -- a decision lists a parent, but
-  the parent record does not list it as a child. Catches G3.
+  the parent record does not list it as a child. Catches G3
+  (missing bidirectional edge).
+- `parent_timestamp_after_child.json` -- a parent eval record is
+  timestamped later than the decision it supposedly informed. Catches
+  G4 (timestamp ordering).
+- `self_parent_reference.json` -- a record lists itself in its own
+  `parent_record_ids`. Catches G5 (self-reference in the parent/child
+  graph).
+- `cyclic_chain.json` -- two policy records with equal timestamps and
+  mutual parent/child edges form a cycle. Catches G6 (acyclicity);
+  G4 alone cannot, because timestamps are equal.
+- `superseded_without_target.json` -- a record carries
+  `status: "superseded"` but does not declare
+  `supersedes_record_id`. Catches S1.
+- `broken_supersession_target.json` -- a corrective decision names a
+  superseded record that is not in the batch. Catches S2 (unresolved
+  supersession target).
+- `self_supersession.json` -- a record supersedes itself. Catches S3.
+- `superseding_timestamp_before_target.json` -- a superseding policy
+  revision is timestamped earlier than the record it claims to
+  replace. Catches S4 (supersession timestamp ordering).
+- `missing_required_field.json` -- a record omits the required
+  `options` field. Catches a schema-level required-field failure.
+- `invalid_status_enum.json` -- a record carries a `status` value
+  (`"approved"`) that is not part of the DRP status enum. Catches a
+  schema-level enum failure.
 
-Each fixture is expected to cause `drp-validate` to exit with code `1`.
+Each fixture is expected to cause `drp-validate` to exit with code `1`,
+and each fixture isolates a single class of defect so that a reviewer
+can see exactly which invariant is being exercised.
 
 ### 2.3 `ambiguous/`
 
@@ -77,10 +104,11 @@ and graph validation are not enough.
 
 Included:
 
-- `vague_rationale.json` -- all fields are present and the graph is
-  consistent, but `context`, `decision`, and `rationale` are too thin
-  to support audit. A reviewer reading only the records cannot
-  reconstruct what was actually being decided or why.
+- `vague_rationale.json` -- every required field is present, `rationale`
+  is present but uninformative, and the graph is consistent. A reviewer
+  reading only the records cannot reconstruct what was actually being
+  decided or why. This is the shape the validator deliberately does
+  not catch: the weakness is content, not structure.
 - `incomplete_chain.json` -- an original deploy record and a patched
   redeploy exist, but the intervening incident and rollback decisions
   were only captured in external tools. The DRP chain alone tells a
@@ -175,7 +203,80 @@ your tool. The ambiguous category in particular is where downstream
 tooling has something to contribute that the reference validator
 deliberately does not.
 
-## 6. Stability
+## 6. How to extend the pack
+
+The pack is intentionally small, but contributors may want to add a
+scenario or a new defect class. The rules below keep it coherent.
+
+### 6.1 Choosing a category
+
+Place the fixture according to the validator's expected outcome, not
+according to the story it tells.
+
+- `valid/` -- reference validator exits `0`. Use this for new
+  well-formed scenarios that a reviewer should be able to trace end to
+  end. Prefer scenarios grounded in one of the use case docs.
+- `invalid/` -- reference validator exits `1` with at least one error.
+  Each fixture should isolate a single class of defect. If the defect
+  requires several coexisting violations to be meaningful, consider
+  whether the scenario actually belongs in `ambiguous/` instead.
+- `ambiguous/` -- reference validator exits `0`, but the fixture
+  illustrates an audit-hostile shape that structural validation does
+  not catch (weak content, missing intermediate records, multiple
+  active successors, etc.). If the validator catches it, it is not
+  ambiguous; it is invalid.
+- `comparison/` -- a structured DRP chain paired with a free-form
+  artifact (prose, markdown, spreadsheet export) representing the same
+  underlying events. Reserved for side-by-side illustration, not for
+  exercising validator branches.
+
+### 6.2 Naming
+
+Use lowercase, underscore-separated filenames that describe the
+shape of the scenario or defect:
+
+- positive scenarios: `<scenario>_chain.json`
+  (e.g. `policy_supersession_chain.json`);
+- negative fixtures: name after the defect, not the scenario
+  (e.g. `self_supersession.json`, `parent_timestamp_after_child.json`),
+  so that the failure mode is obvious from the filename;
+- ambiguous fixtures: name after the shape of the weakness
+  (e.g. `vague_rationale.json`, `incomplete_chain.json`).
+
+### 6.3 Content expectations
+
+- Keep fixtures minimal: the fewest records needed to exhibit the
+  target shape. Add a record only if leaving it out would change the
+  outcome.
+- Use the `context` field to state, in one or two sentences, *what*
+  the fixture illustrates and *why* it is shaped that way. This
+  doubles as documentation for a reviewer reading the JSON cold.
+- Keep timestamps realistic and consistent within the fixture. Use
+  `Z` suffixes (UTC). Do not mix timezone offsets.
+- Prefer `record_id` values that follow the style of existing
+  fixtures (`<kind>-<date>-<label>`).
+
+### 6.4 Updating the documentation
+
+When you add a fixture, update this file (`docs/BENCHMARKS.md`) in
+the relevant subsection of section 2 so that the per-fixture inventory
+stays in sync. If the fixture introduces a category the pack did not
+cover, note it in [CHANGELOG.md](../CHANGELOG.md) under `Unreleased`.
+
+### 6.5 Verifying
+
+Before committing a new fixture, run:
+
+```sh
+python3 scripts/run_benchmark.py
+```
+
+Every category's expectation must still match. A `valid/` or
+`ambiguous/` fixture must exit `0`; an `invalid/` fixture must exit
+`1`. If the runner reports a mismatch, fix the fixture before
+committing.
+
+## 7. Stability
 
 The pack is versioned with the rest of the repository. Scenarios may be
 added in future minor releases. A fixture may be removed or renamed

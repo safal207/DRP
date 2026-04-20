@@ -1,0 +1,17 @@
+[
+  {
+    "record_id": "deploy-2026-04-14-rollback",
+    "timestamp": "2026-04-14T10:20:00Z",
+    "context": "Rollback decision carrying status 'superseded' without declaring which record it supersedes. An auditor cannot chain the rollback back to any earlier deploy.",
+    "decision": "Roll back capability-y to v1 globally.",
+    "options": [
+      "Global rollback",
+      "Narrow audience",
+      "Guard rule"
+    ],
+    "rationale": "Rollback was the only option that fully removed the observed regression inside the incident window.",
+    "status": "superseded",
+    "impact": -1,
+    "tags": ["rollback"]
+  }
+]

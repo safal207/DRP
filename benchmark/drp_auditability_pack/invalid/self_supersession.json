@@ -1,0 +1,17 @@
+[
+  {
+    "record_id": "policy-tooluse-v2",
+    "timestamp": "2026-04-14T10:00:00Z",
+    "context": "Policy revision record that mistakenly declares itself as the record it supersedes. Self-supersession is meaningless and would produce a degenerate history chain.",
+    "decision": "Revised tool-use policy, v2.",
+    "options": [
+      "Revise",
+      "Retire",
+      "Keep v1"
+    ],
+    "rationale": "Incident-driven revision narrowing allowed tool-use patterns.",
+    "status": "superseded",
+    "supersedes_record_id": "policy-tooluse-v2",
+    "tags": ["policy", "tool-use"]
+  }
+]

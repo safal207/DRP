@@ -8,6 +8,7 @@
       "Pass",
       "Fail"
     ],
+    "rationale": "Looked OK.",
     "status": "complete",
     "child_record_ids": ["deploy-decision-2026-04-13"],
     "tags": ["safety-eval"]

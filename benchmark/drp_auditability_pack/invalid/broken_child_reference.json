@@ -1,0 +1,16 @@
+[
+  {
+    "record_id": "eval-2026-04-10-capability-x",
+    "timestamp": "2026-04-10T16:00:00Z",
+    "context": "Eval summary claiming a downstream decision record as a child, but that decision record is missing from the batch (likely because it was drafted in another tool and never exported).",
+    "decision": "Eval pass with open regressions listed.",
+    "options": [
+      "Pass",
+      "Pass with caveats",
+      "Fail"
+    ],
+    "status": "complete",
+    "child_record_ids": ["deploy-decision-2026-04-13-missing"],
+    "tags": ["safety-eval"]
+  }
+]
