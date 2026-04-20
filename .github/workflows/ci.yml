@@ -24,7 +24,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install test dependencies
-        run: pip install pytest
+        run: pip install pytest check-jsonschema
 
       - name: Run test suite
         run: python3 -m pytest tests/ -v
@@ -38,6 +38,24 @@ jobs:
       - name: Smoke-test CLI on invalid fixture (must fail)
         run: |
           python3 tools/drp_validator.py fixtures/invalid/duplicate_id.json && exit 1 || true
+
+      - name: Smoke-test shell wrapper (scripts/drp-validate)
+        run: |
+          ./scripts/drp-validate examples/minimal_valid.json
+          ./scripts/drp-validate fixtures/invalid/duplicate_id.json && exit 1 || true
+
+      - name: External JSON Schema check (valid fixtures)
+        run: |
+          check-jsonschema --schemafile schema/drp.schema.json \
+            examples/minimal_valid.json
+          # Batch fixtures hold arrays of records; strip the array for
+          # per-record schema checking.
+          python3 -c "import json,sys; \
+            [json.dump(r, open(f'/tmp/rec_{i}.json','w')) \
+             for i,r in enumerate(json.load(open('fixtures/valid/basic.json')))]"
+          for f in /tmp/rec_*.json; do \
+            check-jsonschema --schemafile schema/drp.schema.json "$f"; \
+          done
 
       - name: Run auditability benchmark pack
         run: python3 scripts/run_benchmark.py

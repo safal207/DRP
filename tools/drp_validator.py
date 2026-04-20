@@ -16,7 +16,7 @@ import os
 import re
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Iterable, Iterator
 
 
@@ -55,6 +55,34 @@ REQUIRED_FIELDS = (
     "options",
     "status",
 )
+
+# --------------------------------------------------------------------------- #
+# Input size limits (DoS guards)
+# --------------------------------------------------------------------------- #
+# The CLI reads files fully into memory before parsing. These limits cap the
+# worst-case memory footprint and keep the graph layer's O(N + E) work bounded.
+# They can be overridden via environment variables for trusted operators.
+DEFAULT_MAX_FILE_BYTES = 100 * 1024 * 1024  # 100 MiB
+DEFAULT_MAX_BATCH_SIZE = 100_000  # records
+DEFAULT_MAX_STRING_LENGTH = 100_000  # chars per string field
+DEFAULT_MAX_ARRAY_LENGTH = 10_000  # elements per array field
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = os.environ.get(name)
+    if raw is None:
+        return default
+    try:
+        value = int(raw)
+    except ValueError:
+        return default
+    return value if value > 0 else default
+
+
+MAX_FILE_BYTES = _env_int("DRP_MAX_FILE_BYTES", DEFAULT_MAX_FILE_BYTES)
+MAX_BATCH_SIZE = _env_int("DRP_MAX_BATCH_SIZE", DEFAULT_MAX_BATCH_SIZE)
+MAX_STRING_LENGTH = _env_int("DRP_MAX_STRING_LENGTH", DEFAULT_MAX_STRING_LENGTH)
+MAX_ARRAY_LENGTH = _env_int("DRP_MAX_ARRAY_LENGTH", DEFAULT_MAX_ARRAY_LENGTH)
 
 
 # --------------------------------------------------------------------------- #
@@ -108,8 +136,11 @@ class ValidationResult:
 # Helpers
 # --------------------------------------------------------------------------- #
 
+# Spec §3: timestamps are ISO 8601 UTC with a trailing 'Z' or an explicit
+# '+00:00' offset. '-00:00' is intentionally rejected — RFC 3339 gives it the
+# separate semantic "unknown local offset", which is not the same as UTC.
 _ISO_RE = re.compile(
-    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]00:00)$"
+    r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|\+00:00)$"
 )
 
 
@@ -132,14 +163,12 @@ def _parse_iso_utc(ts: str) -> datetime | None:
     if not _ISO_RE.match(ts):
         return None
     try:
-        normalized = ts.replace("Z", "+00:00")
-        dt = datetime.fromisoformat(normalized)
+        dt = datetime.fromisoformat(ts.replace("Z", "+00:00"))
     except ValueError:
         return None
-    if dt.tzinfo is None or dt.utcoffset() != timezone.utc.utcoffset(None):
-        # Must be UTC. +00:00 offset passes; anything else fails.
-        if dt.utcoffset() is None or dt.utcoffset().total_seconds() != 0:
-            return None
+    offset = dt.utcoffset()
+    if offset is None or offset.total_seconds() != 0:
+        return None
     return dt
 
 
@@ -223,10 +252,21 @@ def _schema_validate(record: Any, index: int) -> list[ValidationError]:
         "an object",
     )
 
-    # Array element types.
+    # Array element types and limits.
     for arr_field in ("options", "parent_record_ids", "child_record_ids", "tags"):
         if arr_field in record and isinstance(record[arr_field], list):
-            for i, el in enumerate(record[arr_field]):
+            arr = record[arr_field]
+            if len(arr) > MAX_ARRAY_LENGTH:
+                errs.append(
+                    ValidationError(
+                        "schema",
+                        rid,
+                        arr_field,
+                        f"'{arr_field}' has {len(arr)} elements, exceeds "
+                        f"limit of {MAX_ARRAY_LENGTH}",
+                    )
+                )
+            for i, el in enumerate(arr):
                 if not _is_str(el):
                     errs.append(
                         ValidationError(
@@ -236,6 +276,51 @@ def _schema_validate(record: Any, index: int) -> list[ValidationError]:
                             f"'{arr_field}' elements must be strings",
                         )
                     )
+
+    # uniqueItems for reference arrays. The JSON Schema mirrors this with
+    # uniqueItems: true, but this validator does not depend on an external
+    # schema engine, so the check is repeated here.
+    for arr_field in ("parent_record_ids", "child_record_ids"):
+        if arr_field in record and isinstance(record[arr_field], list):
+            seen: set[str] = set()
+            dupes: set[str] = set()
+            for el in record[arr_field]:
+                if _is_str(el):
+                    if el in seen:
+                        dupes.add(el)
+                    else:
+                        seen.add(el)
+            for dup in sorted(dupes):
+                errs.append(
+                    ValidationError(
+                        "schema",
+                        rid,
+                        arr_field,
+                        f"'{arr_field}' contains duplicate entry '{dup}'",
+                    )
+                )
+
+    # String-length limits for fields under adversarial control.
+    for str_field in (
+        "record_id",
+        "timestamp",
+        "context",
+        "decision",
+        "rationale",
+        "supersedes_record_id",
+        "status",
+    ):
+        v = record.get(str_field)
+        if _is_str(v) and len(v) > MAX_STRING_LENGTH:
+            errs.append(
+                ValidationError(
+                    "schema",
+                    rid,
+                    str_field,
+                    f"'{str_field}' length {len(v)} exceeds limit of "
+                    f"{MAX_STRING_LENGTH}",
+                )
+            )
 
     # Status enum.
     if "status" in record and _is_str(record["status"]):
@@ -250,8 +335,10 @@ def _schema_validate(record: Any, index: int) -> list[ValidationError]:
                 )
             )
 
-    # Impact enum. Booleans are rejected here so that later layers never
-    # see a boolean leaking through as 0/1.
+    # Impact enum. In Python, isinstance(True, int) is True, so a JSON
+    # reader that produces bool for 'true'/'false' would slip through the
+    # "integer in {-1, 0, 1}" check as impact=1 / impact=0. This branch
+    # explicitly rejects booleans so downstream layers can trust the value.
     if "impact" in record:
         v = record["impact"]
         if _is_bool(v) or (v is not None and not _is_int(v)) or (
@@ -393,6 +480,10 @@ def _graph_validate(records: list[dict]) -> list[ValidationError]:
     errs: list[ValidationError] = []
 
     # Build id -> record map and detect duplicates.
+    # Records without a string record_id are skipped here: the schema layer
+    # has already flagged them and validate() stops before reaching the
+    # graph layer in that case, so this loop never actually sees them in
+    # the normal pipeline.
     by_id: dict[str, dict] = {}
     seen_ids: set[str] = set()
     duplicates: set[str] = set()
@@ -601,6 +692,19 @@ def validate(data: Any) -> ValidationResult:
         )
         return result
 
+    if len(records) > MAX_BATCH_SIZE:
+        result.errors.append(
+            ValidationError(
+                "schema",
+                None,
+                None,
+                f"batch size {len(records)} exceeds limit of "
+                f"{MAX_BATCH_SIZE}",
+            )
+        )
+        result.record_count = len(records)
+        return result
+
     result.record_count = len(records)
 
     # Layer 1: schema.
@@ -629,6 +733,19 @@ def validate(data: Any) -> ValidationResult:
 
 
 def validate_file(path: str) -> ValidationResult:
+    size = os.path.getsize(path)
+    if size > MAX_FILE_BYTES:
+        result = ValidationResult()
+        result.errors.append(
+            ValidationError(
+                "schema",
+                None,
+                None,
+                f"file size {size} bytes exceeds limit of "
+                f"{MAX_FILE_BYTES}",
+            )
+        )
+        return result
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
     return validate(data)
@@ -637,6 +754,23 @@ def validate_file(path: str) -> ValidationResult:
 # --------------------------------------------------------------------------- #
 # CLI entry point
 # --------------------------------------------------------------------------- #
+
+def _emit_usage_error(msg: str, as_json: bool) -> None:
+    """
+    Write a CLI-level error (bad path, bad JSON, oversize file, etc.).
+
+    Diagnostics always go to stderr — both in plain-text and JSON mode —
+    so that a caller reading stdout never has to distinguish OK/FAIL
+    validation output from I/O errors.
+    """
+    if as_json:
+        print(
+            json.dumps({"status": "ERROR", "message": msg}),
+            file=sys.stderr,
+        )
+    else:
+        print(f"drp-validate: {msg}", file=sys.stderr)
+
 
 def _main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
@@ -652,28 +786,33 @@ def _main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     try:
+        size = os.path.getsize(args.path)
+    except FileNotFoundError:
+        _emit_usage_error(f"file not found: {args.path}", args.json)
+        return EXIT_USAGE
+    except OSError as e:
+        _emit_usage_error(f"cannot stat {args.path}: {e}", args.json)
+        return EXIT_USAGE
+
+    if size > MAX_FILE_BYTES:
+        _emit_usage_error(
+            f"file size {size} bytes exceeds limit of {MAX_FILE_BYTES} "
+            f"(override with DRP_MAX_FILE_BYTES)",
+            args.json,
+        )
+        return EXIT_USAGE
+
+    try:
         with open(args.path, "r", encoding="utf-8") as f:
             data = json.load(f)
     except FileNotFoundError:
-        msg = f"file not found: {args.path}"
-        if args.json:
-            print(json.dumps({"status": "ERROR", "message": msg}))
-        else:
-            print(f"drp-validate: {msg}", file=sys.stderr)
+        _emit_usage_error(f"file not found: {args.path}", args.json)
         return EXIT_USAGE
     except json.JSONDecodeError as e:
-        msg = f"invalid JSON: {e}"
-        if args.json:
-            print(json.dumps({"status": "ERROR", "message": msg}))
-        else:
-            print(f"drp-validate: {msg}", file=sys.stderr)
+        _emit_usage_error(f"invalid JSON: {e}", args.json)
         return EXIT_USAGE
     except OSError as e:
-        msg = f"cannot read {args.path}: {e}"
-        if args.json:
-            print(json.dumps({"status": "ERROR", "message": msg}))
-        else:
-            print(f"drp-validate: {msg}", file=sys.stderr)
+        _emit_usage_error(f"cannot read {args.path}: {e}", args.json)
         return EXIT_USAGE
 
     result = validate(data)

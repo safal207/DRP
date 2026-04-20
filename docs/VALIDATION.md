@@ -22,7 +22,12 @@ Checks the machine-readable shape of each record against
 - rejection of unknown top-level fields (§4.3).
 
 Schema validation is necessary but **not sufficient**: it cannot express
-uniqueness, cross-record references, or timestamp ordering.
+uniqueness, cross-record references, or timestamp ordering. In
+particular, `schema/drp.schema.json` declares `timestamp` as a string
+without a `format: "date-time"` constraint, so a schema-only validation
+pass will accept strings that are not valid ISO 8601 UTC timestamps.
+Always run the reference validator (or an equivalent that implements
+all three layers) before trusting a record.
 
 ### 1.2 Semantic validation
 
@@ -60,6 +65,27 @@ Cross-record checks that require the full batch:
   (§8 S2);
 - the superseding record's timestamp is ≥ the superseded record's
   timestamp (§8 S4).
+
+Entries within `parent_record_ids` / `child_record_ids` must be unique
+(§7 G7); this is checked at the schema layer, mirroring the
+`uniqueItems: true` constraint in the JSON Schema.
+
+### 1.4 Input-size limits
+
+To bound worst-case memory and CPU when validating untrusted input, the
+reference validator and CLI enforce the following limits. Each limit
+has a compiled-in default and can be raised (or lowered) via an
+environment variable for trusted operators.
+
+| Limit                  | Default     | Environment variable       |
+|------------------------|-------------|----------------------------|
+| File size (CLI)        | 100 MiB     | `DRP_MAX_FILE_BYTES`       |
+| Batch size (records)   | 100 000     | `DRP_MAX_BATCH_SIZE`       |
+| String field length    | 100 000     | `DRP_MAX_STRING_LENGTH`    |
+| Array field length     | 10 000      | `DRP_MAX_ARRAY_LENGTH`     |
+
+Exceeding a limit is reported as a schema-layer error (or a CLI-level
+`ERROR` for file size), not a crash.
 
 ## 2. Error reporting
 
@@ -125,8 +151,10 @@ On failure, it prints one line per error, grouped by layer:
 FAIL: <K> error(s)
 ```
 
-No other output is written to stdout. Diagnostic messages (if any) go
-to stderr.
+No other output is written to stdout. All diagnostic messages — I/O
+errors, JSON parse errors, oversize-input errors — go to stderr, both
+in plain-text mode and in `--json` mode. A caller reading stdout never
+has to disambiguate validation output from CLI-level errors.
 
 ### JSON output (`--json`)
 
@@ -152,7 +180,7 @@ On validation failure:
 }
 ```
 
-On I/O or parse errors:
+On I/O or parse errors (emitted on **stderr**, not stdout):
 
 ```json
 {"status": "ERROR", "message": "file not found: path/to/file.json"}
@@ -177,3 +205,22 @@ the same meaning as in plain-text mode.
   constraints in §6 and §8.
 - It does not canonicalize timestamps or record IDs.
 - It does not deduplicate records.
+
+## 7. Security notes
+
+The reference validator is a CLI and a library. It does not perform
+network access and does not execute user-supplied code. When exposing
+it to untrusted input, callers should be aware of the following.
+
+- **Path handling.** `drp-validate <path>` opens whatever path the
+  caller supplies. It does not sandbox, canonicalize, or restrict the
+  path. If the CLI is invoked from a web service, worker queue, or
+  similar shared context, the wrapping layer is responsible for
+  preventing path traversal (e.g. `../../etc/passwd`).
+- **Input size.** The CLI enforces `DRP_MAX_FILE_BYTES` before parsing
+  (see §1.4), and the library enforces per-record and per-batch limits
+  during validation. These defaults are conservative; tighten them
+  further for hostile input by lowering the environment variables.
+- **Determinism.** Given the same input and the same limits, validator
+  output is byte-for-byte reproducible. It is safe to cache
+  validation results by input hash + limit tuple.
