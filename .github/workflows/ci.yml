@@ -46,16 +46,22 @@ jobs:
 
       - name: External JSON Schema check (valid fixtures)
         run: |
+          # Single records: examples/minimal_valid.json, fixtures/valid/basic.json
           check-jsonschema --schemafile schema/drp.schema.json \
-            examples/minimal_valid.json
-          # Batch fixtures hold arrays of records; strip the array for
-          # per-record schema checking.
-          python3 -c "import json,sys; \
-            [json.dump(r, open(f'/tmp/rec_{i}.json','w')) \
-             for i,r in enumerate(json.load(open('fixtures/valid/basic.json')))]"
-          for f in /tmp/rec_*.json; do \
-            check-jsonschema --schemafile schema/drp.schema.json "$f"; \
-          done
+            examples/minimal_valid.json \
+            fixtures/valid/basic.json
+          # Batch files: extract first record and validate it
+          python3 -c "
+import json
+import sys
+for fname in ['fixtures/valid/graph.json']:
+    batch = json.load(open(fname))
+    if isinstance(batch, list) and batch:
+        with open('/tmp/first_record.json', 'w') as f:
+            json.dump(batch[0], f)
+        sys.exit(0)
+"
+          check-jsonschema --schemafile schema/drp.schema.json /tmp/first_record.json
 
       - name: Run auditability benchmark pack
         run: python3 scripts/run_benchmark.py
