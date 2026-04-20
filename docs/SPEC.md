@@ -45,7 +45,10 @@ JSON value. A DRP batch is a JSON array of records.
 - A record MUST be a valid JSON object.
 - A batch MUST be a valid JSON array.
 - Timestamps MUST be ISO 8601 strings in UTC with either a trailing `Z`
-  or an explicit `+00:00` offset (e.g. `2026-04-17T12:34:56Z`).
+  or an explicit `+00:00` offset (e.g. `2026-04-17T12:34:56Z`). The
+  `-00:00` offset is *not* accepted: RFC 3339 assigns it the distinct
+  meaning "unknown local offset", which is incompatible with the
+  UTC-only contract of DRP timestamps.
 - String fields MUST be UTF-8.
 
 ## 4. Record model
@@ -147,12 +150,22 @@ For a batch, the following MUST hold:
   `parent_record_ids`, then record `B` MUST list `A` in
   `child_record_ids`, and vice versa.
 - **G4. Timestamp ordering.** If `A` is a parent of `C`, then
-  `A.timestamp` MUST be ≤ `C.timestamp`.
+  `A.timestamp` MUST be ≤ `C.timestamp`. Equal timestamps are permitted
+  on a parent/child edge (e.g. two decisions recorded in the same
+  second), but any resulting cycle is still a G6 violation — see below.
 - **G5. No self-reference.** A record MUST NOT appear in its own
   `parent_record_ids` or `child_record_ids`.
+- **G7. Unique edges.** Within a single record, `parent_record_ids` and
+  `child_record_ids` MUST NOT contain duplicate entries. The schema
+  enforces this with `uniqueItems: true`; the reference validator
+  repeats the check so it holds even when the schema is not run
+  through an external engine.
 - **G6. Acyclicity.** The parent/child relation MUST be a directed
-  acyclic graph. (G4 is sufficient to guarantee this if all timestamps
-  are distinct; G6 is stated explicitly to cover tied timestamps.)
+  acyclic graph. If all timestamps on an edge path are strictly ordered,
+  G4 already rules out cycles; G6 is stated explicitly so that cycles
+  formed by records sharing a timestamp are also rejected. The reference
+  validator runs a dedicated cycle detector (iterative DFS) regardless
+  of timestamp values.
 
 A record MAY have multiple parents and multiple children.
 
@@ -182,6 +195,14 @@ Rules:
   `status` is not `superseded` (for example, a `draft` that already
   names its target), but when `status == "superseded"` the pointer is
   required.
+- **S7.** DRP does not forbid two records from naming the same
+  `supersedes_record_id`. This situation ("two candidate successors of
+  the same ancestor") is structurally valid and can arise from
+  concurrent edits or branching histories. Resolving which successor is
+  currently active is the responsibility of downstream tooling
+  (storage, policy engines, UIs), not of the protocol or the reference
+  validator. The canonical discussion is in
+  [USE_CASE_POLICY_SUPERSESSION.md](USE_CASE_POLICY_SUPERSESSION.md).
 
 Note that `superseded` is a *real semantic state*, not a loose synonym
 for `complete`. A validator MUST enforce S1–S6 before accepting a

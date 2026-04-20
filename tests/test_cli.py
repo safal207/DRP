@@ -103,8 +103,14 @@ def test_json_fail_output_cycle(capsys):
 
 
 def test_json_error_on_missing_file(capsys):
-    rc, payload = _run_main_json(["/no/such/file.json", "--json"], capsys)
+    # CLI-level errors go to stderr, even in --json mode, so stdout stays
+    # reserved for validation output (OK / FAIL payloads). See
+    # docs/VALIDATION.md §4.
+    rc = _main(["/no/such/file.json", "--json"])
+    captured = capsys.readouterr()
     assert rc == EXIT_USAGE
+    assert captured.out == ""
+    payload = json.loads(captured.err.strip())
     assert payload["status"] == "ERROR"
     assert "file not found" in payload["message"]
 
@@ -112,8 +118,11 @@ def test_json_error_on_missing_file(capsys):
 def test_json_error_on_malformed_json(tmp_path, capsys):
     bad = tmp_path / "bad.json"
     bad.write_text("{not json")
-    rc, payload = _run_main_json([str(bad), "--json"], capsys)
+    rc = _main([str(bad), "--json"])
+    captured = capsys.readouterr()
     assert rc == EXIT_USAGE
+    assert captured.out == ""
+    payload = json.loads(captured.err.strip())
     assert payload["status"] == "ERROR"
     assert "invalid JSON" in payload["message"]
 
