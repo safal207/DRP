@@ -20,11 +20,15 @@ from datetime import datetime
 from typing import Any, Iterable, Iterator
 
 
-SCHEMA_PATH = os.path.join(
+_VERSION_FILE = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    "schema",
-    "drp.schema.json",
+    "VERSION",
 )
+try:
+    with open(_VERSION_FILE) as _vf:
+        _TOOL_VERSION = _vf.read().strip()
+except OSError:
+    _TOOL_VERSION = "unknown"
 
 ALLOWED_STATUS = frozenset(
     {"draft", "proposed", "complete", "superseded", "rejected"}
@@ -746,6 +750,14 @@ def validate(data: Any) -> ValidationResult:
 
 
 def validate_file(path: str) -> ValidationResult:
+    """
+    Read *path* and validate its contents.
+
+    Raises `OSError` if the file cannot be opened or stat'd, and
+    `json.JSONDecodeError` if its contents are not valid JSON.  Callers
+    that need graceful error handling should catch these exceptions; the
+    CLI entry point (`_main`) already does so.
+    """
     size = os.path.getsize(path)
     if size > MAX_FILE_BYTES:
         result = ValidationResult()
@@ -778,7 +790,7 @@ def _emit_usage_error(msg: str, as_json: bool) -> None:
     """
     if as_json:
         print(
-            json.dumps({"status": "ERROR", "message": msg}),
+            json.dumps({"status": "ERROR", "message": msg}, ensure_ascii=False),
             file=sys.stderr,
         )
     else:
@@ -795,6 +807,11 @@ def _main(argv: list[str] | None = None) -> int:
         "--json",
         action="store_true",
         help="Emit machine-readable JSON output instead of plain text.",
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"%(prog)s {_TOOL_VERSION}",
     )
     args = parser.parse_args(argv)
 
@@ -836,7 +853,7 @@ def _main(argv: list[str] | None = None) -> int:
                 "status": "OK",
                 "record_count": result.record_count,
                 "errors": [],
-            }))
+            }, ensure_ascii=False))
         else:
             print(f"OK: {result.record_count} record(s) validated")
         return EXIT_OK
@@ -846,7 +863,7 @@ def _main(argv: list[str] | None = None) -> int:
             "status": "FAIL",
             "record_count": result.record_count,
             "errors": [e.to_dict() for e in result.errors],
-        }))
+        }, ensure_ascii=False))
     else:
         for err in result.errors:
             print(err.format())

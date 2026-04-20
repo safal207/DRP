@@ -423,3 +423,21 @@ def test_env_int_warning_on_non_positive(monkeypatch, capsys):
     captured = capsys.readouterr()
     assert "warning" in captured.err.lower()
     assert "not positive" in captured.err.lower()
+
+
+# --------------------------------------------------------------------------- #
+# Additional edge cases (post-PR#3 audit)
+# --------------------------------------------------------------------------- #
+
+def test_empty_batch_is_valid():
+    """S1: empty batch is a valid JSON array; record_count=0."""
+    result = validate([])
+    assert result.ok, [e.format() for e in result.errors]
+    assert result.record_count == 0
+
+
+def test_metadata_non_object_rejected():
+    """Schema layer must reject metadata that is not a JSON object."""
+    r = _base()
+    r["metadata"] = "not an object"
+    _expect_fail(r, layer="schema", field="metadata")
