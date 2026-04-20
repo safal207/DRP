@@ -75,8 +75,18 @@ def _env_int(name: str, default: int) -> int:
     try:
         value = int(raw)
     except ValueError:
+        print(
+            f"warning: {name}={raw!r} is not an integer; using default {default}",
+            file=sys.stderr,
+        )
         return default
-    return value if value > 0 else default
+    if value <= 0:
+        print(
+            f"warning: {name}={value} is not positive; using default {default}",
+            file=sys.stderr,
+        )
+        return default
+    return value
 
 
 MAX_FILE_BYTES = _env_int("DRP_MAX_FILE_BYTES", DEFAULT_MAX_FILE_BYTES)
@@ -301,6 +311,7 @@ def _schema_validate(record: Any, index: int) -> list[ValidationError]:
                 )
 
     # String-length limits for fields under adversarial control.
+    # Limits are measured in UTF-8 bytes to bound memory footprint.
     for str_field in (
         "record_id",
         "timestamp",
@@ -311,16 +322,18 @@ def _schema_validate(record: Any, index: int) -> list[ValidationError]:
         "status",
     ):
         v = record.get(str_field)
-        if _is_str(v) and len(v) > MAX_STRING_LENGTH:
-            errs.append(
-                ValidationError(
-                    "schema",
-                    rid,
-                    str_field,
-                    f"'{str_field}' length {len(v)} exceeds limit of "
-                    f"{MAX_STRING_LENGTH}",
+        if _is_str(v):
+            nbytes = len(v.encode("utf-8"))
+            if nbytes > MAX_STRING_LENGTH:
+                errs.append(
+                    ValidationError(
+                        "schema",
+                        rid,
+                        str_field,
+                        f"'{str_field}' UTF-8 size {nbytes} bytes exceeds "
+                        f"limit of {MAX_STRING_LENGTH}",
+                    )
                 )
-            )
 
     # Status enum.
     if "status" in record and _is_str(record["status"]):

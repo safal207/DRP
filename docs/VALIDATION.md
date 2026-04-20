@@ -77,15 +77,21 @@ reference validator and CLI enforce the following limits. Each limit
 has a compiled-in default and can be raised (or lowered) via an
 environment variable for trusted operators.
 
-| Limit                  | Default     | Environment variable       |
-|------------------------|-------------|----------------------------|
-| File size (CLI)        | 100 MiB     | `DRP_MAX_FILE_BYTES`       |
-| Batch size (records)   | 100 000     | `DRP_MAX_BATCH_SIZE`       |
-| String field length    | 100 000     | `DRP_MAX_STRING_LENGTH`    |
-| Array field length     | 10 000      | `DRP_MAX_ARRAY_LENGTH`     |
+| Limit                      | Default     | Environment variable       |
+|----------------------------|-------------|----------------------------|
+| File size (CLI)            | 100 MiB     | `DRP_MAX_FILE_BYTES`       |
+| Batch size (records)       | 100 000     | `DRP_MAX_BATCH_SIZE`       |
+| String field length (UTF-8 bytes) | 100 000 | `DRP_MAX_STRING_LENGTH`    |
+| Array field length (items) | 10 000      | `DRP_MAX_ARRAY_LENGTH`     |
+
+String-field limits are measured in UTF-8 bytes, not Unicode code points.
+A string of 100 000 ASCII characters is 100 000 bytes; a string of 25 000
+emoji characters (4 bytes each in UTF-8) is also 100 000 bytes.
 
 Exceeding a limit is reported as a schema-layer error (or a CLI-level
-`ERROR` for file size), not a crash.
+`ERROR` for file size), not a crash. If an environment variable is set
+to a non-integer or non-positive value, the validator emits a warning
+to stderr and uses the default.
 
 ## 2. Error reporting
 

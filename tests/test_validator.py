@@ -400,3 +400,26 @@ def test_cli_validation_output_goes_to_stdout(tmp_path, capsys):
     assert rc == drp_validator.EXIT_OK
     assert '"status": "OK"' in captured.out
     assert captured.err == ""
+
+
+def test_env_int_warning_on_non_integer(monkeypatch, capsys):
+    import drp_validator
+    monkeypatch.setenv("DRP_MAX_BATCH_SIZE", "not_a_number")
+    # Force re-evaluation of the limit (in real code, it's evaluated at import)
+    # We'll call _env_int directly instead.
+    val = drp_validator._env_int("DRP_MAX_BATCH_SIZE", 42)
+    assert val == 42
+    captured = capsys.readouterr()
+    assert "warning" in captured.err.lower()
+    assert "not_a_number" in captured.err
+
+
+def test_env_int_warning_on_non_positive(monkeypatch, capsys):
+    import drp_validator
+    val = drp_validator._env_int("DRP_MAX_BATCH_SIZE", 42)
+    monkeypatch.setenv("DRP_MAX_BATCH_SIZE", "0")
+    val = drp_validator._env_int("DRP_MAX_BATCH_SIZE", 42)
+    assert val == 42
+    captured = capsys.readouterr()
+    assert "warning" in captured.err.lower()
+    assert "not positive" in captured.err.lower()
