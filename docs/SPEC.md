@@ -29,7 +29,9 @@ JSON value. A DRP batch is a JSON array of records.
 
 - **Record** — a single JSON object conforming to §4.
 - **Batch** — a JSON array whose elements are records. A batch is the
-  unit of validation for graph-level invariants (§7).
+  unit of validation for graph-level invariants (§7). An empty batch
+  (`[]`) is valid; it contains zero records and trivially satisfies all
+  graph invariants.
 - **Record ID** — the value of a record's `record_id` field. Unique
   within a batch.
 - **Parent** — a record referenced by another record's

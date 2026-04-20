@@ -24,7 +24,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install test dependencies
-        run: pip install pytest check-jsonschema
+        run: pip install -r requirements-dev.txt
 
       - name: Run test suite
         run: python3 -m pytest tests/ -v
@@ -41,6 +41,7 @@ jobs:
 
       - name: Smoke-test shell wrapper (scripts/drp-validate)
         run: |
+          chmod +x scripts/drp-validate
           ./scripts/drp-validate examples/minimal_valid.json
           ./scripts/drp-validate fixtures/invalid/duplicate_id.json && exit 1 || true
 
