@@ -1,0 +1,60 @@
+name: DRP Validate (CLI)
+
+on:
+  push:
+    branches: ["main", "claude/**"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  cli:
+    name: CLI smoke (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install package
+        run: pip install .
+
+      - name: Check imports
+        run: python -c "import linter; import tools.drp_validator; print('All imports successful')"
+
+      - name: Show version
+        run: drp-validate --version
+
+      - name: List rules
+        run: drp-validate rules
+
+      - name: List rules (json)
+        run: drp-validate rules --format json
+
+      - name: Validate examples (blocking)
+        run: drp-validate validate examples/*.json --no-color
+
+      - name: Validate examples (json)
+        run: drp-validate validate examples/*.json --format json --no-color
+
+      - name: Validate must fail on invalid fixture
+        run: |
+          if drp-validate validate fixtures/invalid/duplicate_id.json --no-color; then
+            echo "expected drp-validate to fail on invalid fixture" >&2
+            exit 1
+          fi
+
+      - name: Lint examples (non-blocking)
+        run: drp-validate lint examples/*.json --no-color || true
+
+      - name: Lint examples (json, non-blocking)
+        run: drp-validate lint examples/*.json --format json --no-color || true
+
+      - name: Bare-path shorthand defaults to validate
+        run: drp-validate examples/minimal_valid.json --no-color

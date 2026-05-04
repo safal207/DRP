@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "drp-protocol"
+version = "0.2.0"
+description = "Decision Record Protocol: reference validator, linter, and CLI."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.9"
+authors = [{ name = "DRP contributors" }]
+keywords = ["decision-records", "adr", "audit", "governance", "validator", "linter"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Quality Assurance",
+]
+
+[project.urls]
+Homepage = "https://github.com/safal207/DRP"
+Documentation = "https://github.com/safal207/DRP/tree/main/docs"
+Repository = "https://github.com/safal207/DRP"
+Issues = "https://github.com/safal207/DRP/issues"
+
+[project.scripts]
+drp-validate = "drp_cli:main"
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0", "check-jsonschema>=0.28"]
+
+[tool.setuptools]
+py-modules = ["drp_cli", "linter"]
+
+[tool.setuptools.packages.find]
+include = ["tools*", "drp_cli", "linter"]
+exclude = ["tests*", "fixtures*", "examples*", "benchmark*", "docs*", "scripts*"]
