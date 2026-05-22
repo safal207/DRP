@@ -39,6 +39,8 @@ incident comments. Over time, the original context disappears:
 DRP turns those decisions into small, structured records that can be validated,
 linked, superseded, tested, and inspected over time.
 
+For a standalone introduction, see [Why DRP](docs/WHY_DRP.md).
+
 ## Core flow
 
 ```mermaid
@@ -80,6 +82,8 @@ In practice, DRP can complement ADR:
 
 - ADR explains the narrative.
 - DRP preserves the structured decision state and validation contract.
+
+For a fuller comparison, see [DRP and ADR](docs/COMPARISON_ADR.md).
 
 ## Why DRP
 
@@ -146,6 +150,8 @@ contract.
 |   +-- VALIDATION.md          - validator rules and CLI contract
 |   +-- DESIGN.md              - rationale behind design choices
 |   +-- FAQ.md                 - common questions
+|   +-- WHY_DRP.md             - standalone introduction
+|   +-- COMPARISON_ADR.md      - comparison with Architecture Decision Records
 |   +-- USE_CASE_SAFETY_EVAL.md      - go/no-go decisions around safety evaluations
 |   +-- USE_CASE_INCIDENT_ROLLBACK.md - incident response and rollback chain
 |   +-- USE_CASE_POLICY_SUPERSESSION.md - policy evolution and governance change
@@ -169,6 +175,8 @@ contract.
 
 ## Key documents
 
+- [Why DRP](docs/WHY_DRP.md) - standalone introduction to the problem and motivation.
+- [DRP and ADR](docs/COMPARISON_ADR.md) - how DRP relates to Architecture Decision Records.
 - [Grant Evidence Package](docs/GRANT_EVIDENCE.md) - reviewer-facing evidence matrix, reproducible commands, limitations, and research roadmap.
 - [Specification](docs/SPEC.md) - normative definition of the record model.
 - [Validation](docs/VALIDATION.md) - what the validator checks and how.
