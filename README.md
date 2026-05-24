@@ -1,5 +1,10 @@
 # Decision Record Protocol (DRP)
 
+[![CI](https://github.com/safal207/DRP/actions/workflows/ci.yml/badge.svg)](https://github.com/safal207/DRP/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![GitHub release](https://img.shields.io/github/v/release/safal207/DRP?include_prereleases)](https://github.com/safal207/DRP/releases)
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue.svg)](.github/workflows/ci.yml)
+
 DRP is a lightweight, machine-readable protocol for recording decisions as
 immutable, linkable records with causal links, validation rules, and explicit
 supersession.
