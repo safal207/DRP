@@ -4,6 +4,47 @@ Thank you for considering a contribution. DRP is a specification first and
 a piece of code second, so changes are evaluated against the spec, not just
 the implementation.
 
+## Start here
+
+If you are new to DRP, start with small contributions that improve clarity
+before changing protocol behavior.
+
+Good first contribution types:
+
+1. **Examples** - add a small valid DRP record for a realistic decision.
+2. **Invalid fixtures** - add a focused invalid case that the validator should reject.
+3. **FAQ improvements** - clarify a confusing field, status, or rule.
+4. **Use-case notes** - explain how DRP applies to a concrete workflow.
+5. **CLI docs** - improve copy-paste commands, output examples, or troubleshooting.
+6. **Comparison docs** - explain how DRP relates to adjacent practices or tools.
+
+A good first PR should be small, easy to review, and linked to one issue.
+
+## Contributor path
+
+DRP contributions usually fall into four levels:
+
+| Level | Contribution type | Expected files |
+|---|---|---|
+| 1 | Documentation clarification | `README.md`, `docs/*.md` |
+| 2 | New examples or fixtures | `examples/`, `fixtures/` |
+| 3 | Validator behavior | `tools/drp_validator.py`, `tests/`, fixtures |
+| 4 | Protocol semantics | `docs/SPEC.md`, schema, validator, tests, changelog |
+
+For first-time contributors, Level 1 and Level 2 are the best entry points.
+Level 3 and Level 4 should include tests and clear spec references.
+
+## Before opening a PR
+
+Please check:
+
+- the change has a clear purpose;
+- the PR is focused on one topic;
+- docs are updated when behavior changes;
+- tests are updated when validation behavior changes;
+- new examples are small and readable;
+- invalid fixtures fail for the reason their filename suggests.
+
 ## Ground rules
 
 1. **The spec is normative.** `docs/SPEC.md` defines the protocol. Code,
@@ -60,8 +101,8 @@ positive fixture (valid) and one negative fixture (invalid).
 
 ## What counts as a breaking change
 
-A change is **breaking** — and requires a major version bump after `1.0.0`
-or a prominent note before then — if it can cause a previously valid
+A change is **breaking** -- and requires a major version bump after `1.0.0`
+or a prominent note before then -- if it can cause a previously valid
 record to be rejected or a previously rejected record to be accepted.
 Concretely:
 
