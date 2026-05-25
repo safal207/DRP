@@ -157,6 +157,7 @@ contract.
 |   +-- FAQ.md                 - common questions
 |   +-- WHY_DRP.md             - standalone introduction
 |   +-- COMPARISON_ADR.md      - comparison with Architecture Decision Records
+|   +-- ANNOUNCEMENT.md        - public announcement drafts
 |   +-- USE_CASE_SAFETY_EVAL.md      - go/no-go decisions around safety evaluations
 |   +-- USE_CASE_INCIDENT_ROLLBACK.md - incident response and rollback chain
 |   +-- USE_CASE_POLICY_SUPERSESSION.md - policy evolution and governance change
@@ -182,6 +183,7 @@ contract.
 
 - [Why DRP](docs/WHY_DRP.md) - standalone introduction to the problem and motivation.
 - [DRP and ADR](docs/COMPARISON_ADR.md) - how DRP relates to Architecture Decision Records.
+- [Announcement drafts](docs/ANNOUNCEMENT.md) - ready-to-edit public copy for explaining DRP.
 - [Grant Evidence Package](docs/GRANT_EVIDENCE.md) - reviewer-facing evidence matrix, reproducible commands, limitations, and research roadmap.
 - [Specification](docs/SPEC.md) - normative definition of the record model.
 - [Validation](docs/VALIDATION.md) - what the validator checks and how.
