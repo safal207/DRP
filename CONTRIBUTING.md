@@ -120,6 +120,33 @@ Non-breaking changes include:
 - Clarifying documentation without changing behavior.
 - Improving error messages.
 
+## Good First Issues and Contributor Path
+
+Welcome! If you're new to the project, there are plenty of ways to get involved without needing a deep understanding of the protocol internals.
+
+### Small Contribution Types
+We recommend starting with these small contribution types to get familiar with our workflow:
+- **Examples**: Add small, self-contained examples of DRP usage to the `examples/` directory.
+- **Fixtures**: Create new JSON test fixtures for edge cases under `fixtures/valid/` or `fixtures/invalid/`.
+- **Docs**: Fix typos, clarify confusing sections, or expand on concepts in the `docs/` folder.
+- **CLI Tests**: Add shell tests or unit tests for the `drp_validator.py` CLI.
+- **Comparison Notes**: Document how DRP compares to similar protocols or existing solutions.
+
+### Beginner-Friendly Task Ideas
+If you're looking for a specific task to tackle, here are 5 ideas to get started:
+1. **Document an edge case**: Find an invariant in `docs/SPEC.md` that is hard to understand and add an explanatory example to the docs.
+2. **Add an invalid fixture**: Pick a required field in `schema/drp.schema.json` and create a fixture in `fixtures/invalid/` that omits it.
+3. **Enhance a CLI error message**: Modify `tools/drp_validator.py` to print a more descriptive error for a specific validation failure.
+4. **Write a quickstart guide**: Create a brief `docs/QUICKSTART.md` showing how to run the validator on a sample file.
+5. **Add a CLI test**: Write a basic test in `tests/` that runs the validator via subprocess and checks the exit code.
+
+### What Makes a Good Contribution
+A good contribution, especially for your first PR, should be focused and complete. It should include:
+- A single, well-defined change (don't mix doc fixes with code changes).
+- A clear description of why the change is being made.
+- If relevant, the appropriate tests and fixtures (even for docs, ensuring links work is helpful!).
+- Adherence to the commit and PR hygiene guidelines listed below.
+
 ## Commit and PR hygiene
 
 - Keep PRs focused. One protocol change per PR is ideal.
